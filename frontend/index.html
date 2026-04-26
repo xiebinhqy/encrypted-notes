@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>端对端加密私人笔记</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: '#4f46e5',
+        secondary: '#64748b',
+        success: '#10b981',
+        danger: '#ef4444',
+        warning: '#f59e0b',
+        dark: {
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          700: '#334155',
+          800: '#1e293b',
+          850: '#172033',
+          900: '#0f172a',
+          950: '#0a0f1d',
+        }
+      },
+    }
+  }
+}
+</script>
+<style>
+.markdown-body { background: transparent !important; color: #f1f5f9 !important; }
+.markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 { color: #f1f5f9 !important; }
+* { box-sizing: border-box; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.tree-fold { transition: transform 0.2s ease; }
+.tree-fold.folded { transform: rotate(-90deg); }
+
+/* Toast动画 */
+@keyframes toastIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes toastOut {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+.toast-enter { animation: toastIn 0.3s ease forwards; }
+.toast-leave { animation: toastOut 0.3s ease forwards; }
+</style>
+</head>
+<body class="bg-dark-900 text-dark-100 min-h-screen">
+<script>
+const API_BASE = "https://api.dee.us.kg";
+// 全局状态
+let masterKey = "", userId = "";
+let notes = [], categories = [], currentNoteId = null;
+let currentView = "dashboard";
+let currentKnowledgeView = "home";
+let currentKnowledgeCategory = null;
+let currentKnowledgeNote = null;
+let foldState = {};
+let searchKeyword = "";
+
+// ====================== DOM缓存（优化性能） ======================
+const domCache = {};
+document.addEventListener('DOMContentLoaded', function() {
+  domCache.categoryList = document.getElementById('categoryList');
+  domCache.notesList = document.getElementById('notesList');
+  domCache.statNotes = document.getElementById('statNotes');
+  domCache.statCats = document.getElementById('statCats');
+  domCache.statTags = document.getElementById('statTags');
+  domCache.statLastUpdate = document.getElementById('statLastUpdate');
+  domCache.recentNotes = document.getElementById('recentNotes');
+  domCache.noteTitle = document.getElementById('noteTitle');
+  domCache.noteContent = document.getElementById('noteContent');
+  domCache.noteCategory = document.getElementById('noteCategory');
+  domCache.noteTags = document.getElementById('noteTags');
+  domCache.noteMeta = document.getElementById('noteMeta');
+  domCache.knowledgeBreadcrumb = document.getElementById('knowledgeBreadcrumb');
+  domCache.knowledgeTree = document.getElementById('knowledgeTree');
+  domCache.knowledgeHomeContent = document.getElementById('knowledgeHomeContent');
+  domCache.knowledgeCategoryContent = document.getElementById('knowledgeCategoryContent');
+  domCache.knowledgeDetailTitle = document.getElementById('knowledgeDetailTitle');
+  domCache.knowledgeDetailMeta = document.getElementById('knowledgeDetailMeta');
+  domCache.knowledgeDetailContent = document.getElementById('knowledgeDetailContent');
+});
+
+// ====================== 自定义Toast（全量替换原生alert） ======================
+function showToast(message, type = 'success') {
+  const oldToast = document.getElementById('customToast');
+  if (oldToast) oldToast.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'customToast';
+  toast.className = `fixed top-4 right-4 z-[9999] px-6 py-3 rounded-lg shadow-2xl flex items-center gap-3 toast-enter ${
+    type === 'success' ? 'bg-success/95 text-white' : 
+    type === 'error' ? 'bg-danger/95 text-white' : 
+    'bg-dark-800/95 text-white border border-dark-700'
+  }`;
+  
+  const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+  toast.innerHTML = `<i class="fa-solid ${icon} text-lg"></i><span>${message}</span>`;
+  
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.remove('toast-enter');
+    toast.classList.add('toast-leave');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// ====================== 防抖函数 ======================
+function debounce(func, wait = 300) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+// ====================== 工具函数 ======================
+function requireAuth(callback) {
+  return function(...args) {
+    if (!userId || !masterKey) {
+      showToast("⚠️ 请先输入密码解锁", 'error');
+      return;
+    }
+    return callback.apply(this, args);
+  };
+}
+
+function timeAgo(timestamp) {
+  const seconds = Math.floor((Date.now() - timestamp) / 1000);
+  if (seconds < 60) return '刚刚';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}分钟前`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}小时前`;
+  const days = Math.floor(hours / 24);
+  return `${days}天前`;
+}
+
+function formatTime(timestamp) {
+  return new Date(timestamp).toLocaleString();
+}
+
+// ====================== 加密核心 ======================
+async function getKey(secret) {
+  const enc = new TextEncoder();
+  const hash = await crypto.subtle.digest('SHA-256', enc.encode(secret));
+  return crypto.subtle.importKey('raw', hash, 'AES-GCM', false, ['encrypt', 'decrypt']);
+}
+
+async function getKeyHash(secret) {
+  const enc = new TextEncoder();
+  const hashBuffer = await crypto.subtle.digest('SHA-256', enc.encode(secret));
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function encrypt(plaintext, secret) {
+  if (!plaintext) return '';
+  const key = await getKey(secret);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const enc = new TextEncoder();
+  const ciphertext = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    enc.encode(plaintext)
+  );
+  return btoa(JSON.stringify({
+    iv: Array.from(iv),
+    ct: Array.from(new Uint8Array(ciphertext))
+  }));
+}
+
+async function decrypt(ciphertextStr, secret) {
+  if (!ciphertextStr) return '';
+  try {
+    const { iv, ct } = JSON.parse(atob(ciphertextStr));
+    const key = await getKey(secret);
+    const plaintext = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: new Uint8Array(iv) },
+      key,
+      new Uint8Array(ct)
+    );
+    return new TextDecoder().decode(plaintext);
+  } catch (e) {
+    console.error('解密失败:', e);
+    return '';
+  }
+}
+
+// ====================== 登录/注册核心逻辑 ======================
+async function loginOrRegister() {
+  const key = document.getElementById('loginKey').value;
+  if (key.length < 8) {
+    showToast('密码至少需要8位', 'error');
+    return;
+  }
+
+  masterKey = key;
+  const keyHash = await getKeyHash(key);
+
+  try {
+    // 先尝试登录
+    const loginRes = await fetch(`${API_BASE}/user/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key_hash: keyHash })
+    });
+
+    if (loginRes.ok) {
+      // 登录成功
+      const data = await loginRes.json();
+      userId = data.user_id;
+      onLoginSuccess();
+    } else {
+      // 登录失败，自动注册新账号
+      const registerRes = await fetch(`${API_BASE}/user/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key_hash: keyHash })
+      });
+
+      if (registerRes.ok) {
+        const data = await registerRes.json();
+        userId = data.user_id;
+        showRecoveryCodeModal(data.recovery_code);
+        onLoginSuccess();
+      } else {
+        const err = await registerRes.json();
+        showToast(err.err || '操作失败', 'error');
+      }
+    }
+  } catch (e) {
+    console.error(e);
+    showToast('网络错误，请检查API地址', 'error');
+  }
+}
+
+function showRecoveryCodeModal(code) {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black/80 flex items-center justify-center z-[9999]';
+  modal.id = 'recoveryCodeModal';
+  modal.innerHTML = `
+    <div class="bg-dark-800 p-8 rounded-2xl max-w-md w-full border border-dark-700">
+      <div class="text-center mb-6">
+        <div class="text-5xl mb-4 text-warning"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h2 class="text-2xl font-bold mb-2">请务必保存好你的恢复码</h2>
+        <p class="text-secondary">恢复码仅显示这一次，丢失无法找回！</p>
+      </div>
+      <div class="bg-dark-900 p-4 rounded-lg border border-dark-700 text-center mb-6">
+        <div class="text-2xl font-mono font-bold tracking-wider text-primary">${code}</div>
+      </div>
+      <p class="text-xs text-secondary text-center mb-6">⚠️ 请截图或复制保存，关闭后将无法再次查看</p>
+      <button onclick="document.getElementById('recoveryCodeModal').remove()" class="w-full bg-primary text-white p-3 rounded-lg hover:bg-primary/90">
+        我已保存，关闭
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function showRecoveryModal() {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black/80 flex items-center justify-center z-[9999]';
+  modal.id = 'recoveryModal';
+  modal.innerHTML = `
+    <div class="bg-dark-800 p-8 rounded-2xl max-w-md w-full border border-dark-700">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold">恢复码重置主密钥</h2>
+        <button onclick="document.getElementById('recoveryModal').remove()" class="text-secondary hover:text-white">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div class="space-y-4 mb-6">
+        <div>
+          <label class="block text-sm font-medium mb-2">恢复码</label>
+          <input id="recoveryCodeInput" type="text" placeholder="输入你的恢复码" 
+                 class="w-full p-3 bg-dark-900 border border-dark-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2">新主密钥</label>
+          <input id="newPasswordInput" type="password" placeholder="新密码至少8位" 
+                 class="w-full p-3 bg-dark-900 border border-dark-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+      </div>
+      <button onclick="resetPasswordByRecovery()" class="w-full bg-primary text-white p-3 rounded-lg hover:bg-primary/90">
+        确认重置
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+async function resetPasswordByRecovery() {
+  const recoveryCode = document.getElementById('recoveryCodeInput').value.trim().toUpperCase();
+  const newPassword = document.getElementById('newPasswordInput').value;
+
+  if (!recoveryCode) {
+    showToast('请输入恢复码', 'error');
+    return;
+  }
+  if (newPassword.length < 8) {
+    showToast('新密码至少8位', 'error');
+    return;
+  }
+
+  try {
+    const newKeyHash = await getKeyHash(newPassword);
+    const res = await fetch(`${API_BASE}/user/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recovery_code: recoveryCode, new_key_hash: newKeyHash })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      showToast(err.err || '重置失败', 'error');
+      return;
+    }
+
+    const data = await res.json();
+    document.getElementById('recoveryModal').remove();
+    showRecoveryCodeModal(data.new_recovery_code);
+    showToast('✅ 重置成功！请使用新密码登录');
+    document.getElementById('loginKey').value = newPassword;
+  } catch (e) {
+    console.error(e);
+    showToast('网络错误', 'error');
+  }
+}
+
+function onLoginSuccess() {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('appPage').classList.remove('hidden');
+  loadAllData();
+  switchView('dashboard');
+}
+
+function logout() {
+  if (confirm('确定退出吗？')) {
+    masterKey = '';
+    userId = '';
+    notes = [];
+    categories = [];
+    currentNoteId = null;
+    currentKnowledgeView = 'home';
+    currentKnowledgeCategory = null;
+    currentKnowledgeNote = null;
+    document.getElementById('loginPage').classList.remove('hidden');
+    document.getElementById('appPage').classList.add('hidden');
+    document.getElementById('loginKey').value = '';
+  }
+}
+
+// ====================== 数据加载（并行请求+解密加固） ======================
+const loadAllData = requireAuth(async function() {
+  try {
+    // 并行请求分类和笔记，减少等待时间
+    const [catRes, notesRes] = await Promise.all([
+      fetch(`${API_BASE}/categories`, { headers: { 'X-User-Id': userId } }),
+      fetch(`${API_BASE}/notes`, { headers: { 'X-User-Id': userId } })
+    ]);
+
+    // 一次性解密分类数据，确保无异常
+    const encryptedCats = await catRes.json();
+    const newCategories = [];
+    for (const cat of encryptedCats) {
+      const decryptedName = await decrypt(cat.name_cipher, masterKey);
+      newCategories.push({
+        id: cat.id,
+        name: decryptedName || '未命名分类'
+      });
+    }
+    categories = newCategories;
+
+    // 一次性解密笔记数据，加固分类和标签的解密逻辑
+    const encryptedNotes = await notesRes.json();
+    const newNotes = [];
+    for (const note of encryptedNotes) {
+      // 逐个字段解密，确保每个字段都正确解析
+      const decryptedTitle = await decrypt(note.title_cipher, masterKey);
+      const decryptedContent = await decrypt(note.ciphertext, masterKey);
+      const decryptedCategory = await decrypt(note.category_cipher, masterKey);
+      const decryptedTags = await decrypt(note.tags_cipher, masterKey);
+      
+      // 标签解析加固，避免JSON解析错误
+      let parsedTags = [];
+      try {
+        parsedTags = decryptedTags ? JSON.parse(decryptedTags) : [];
+        if (!Array.isArray(parsedTags)) parsedTags = [];
+      } catch (e) {
+        parsedTags = [];
+        console.error('标签解析失败:', e);
+      }
+
+      newNotes.push({
+        id: note.id,
+        title: decryptedTitle || '无标题',
+        content: decryptedContent || '',
+        category: decryptedCategory || '', // 分类ID，空字符串为无分类
+        tags: parsedTags,
+        revision_count: note.revision_count || 0,
+        created_at: note.created_at || Date.now(),
+        updated_at: note.updated_at || Date.now()
+      });
+    }
+    notes = newNotes;
+
+    // 一次性渲染，减少DOM重绘
+    renderCategories();
+    renderNotes();
+    renderDashboard();
+    if (currentView === 'knowledge') {
+      renderKnowledgeView();
+    }
+  } catch (e) {
+    console.error(e);
+    showToast('数据加载失败', 'error');
+  }
+});
+
+// ====================== 分类渲染（下拉框渲染加固） ======================
+function renderCategories() {
+  if (!domCache.categoryList) return;
+  
+  let html = `
+    <div class="p-2 rounded hover:bg-dark-800 cursor-pointer ${currentView === 'dashboard' ? 'bg-primary/20 text-white' : 'text-secondary'}" onclick="switchView('dashboard')">
+      <i class="fa-solid fa-chart-line mr-2"></i> 仪表盘
+    </div>
+    <div class="p-2 rounded hover:bg-dark-800 cursor-pointer text-secondary" onclick="filterByCategory('')">
+      <i class="fa-solid fa-book mr-2"></i> 全部笔记
+    </div>
+  `;
+  
+  for (const cat of categories) {
+    html += `
+      <div class="flex justify-between items-center p-2 rounded hover:bg-dark-800 cursor-pointer text-secondary group">
+        <span onclick="filterByCategory('${cat.id}')"><i class="fa-solid fa-folder mr-2"></i> ${cat.name}</span>
+        <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button onclick="editCategory('${cat.id}')" class="text-secondary hover:text-primary text-xs"><i class="fa-solid fa-edit"></i></button>
+          <button onclick="deleteCategory('${cat.id}')" class="text-secondary hover:text-danger text-xs"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+    `;
+  }
+  domCache.categoryList.innerHTML = html;
+
+  // 渲染编辑器分类下拉框，确保option完整渲染
+  if (domCache.noteCategory) {
+    let selectHtml = '<option value="">无分类</option>';
+    for (const cat of categories) {
+      selectHtml += `<option value="${cat.id}">${cat.name}</option>`;
+    }
+    domCache.noteCategory.innerHTML = selectHtml;
+  }
+}
+
+// ====================== 分类操作 ======================
+function showCreateCategoryModal() {
+  document.getElementById('categoryNameInput').value = '';
+  document.getElementById('createCategoryModal').classList.remove('hidden');
+  document.getElementById('categoryNameInput').focus();
+}
+
+const createCategoryConfirm = requireAuth(async function() {
+  const name = document.getElementById('categoryNameInput').value.trim();
+  if (!name) {
+    showToast('请输入分类名称', 'error');
+    return;
+  }
+
+  const id = crypto.randomUUID();
+  const name_cipher = await encrypt(name, masterKey);
+
+  await fetch(`${API_BASE}/category`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-User-Id': userId },
+    body: JSON.stringify({ id, name_cipher })
+  });
+
+  await loadAllData();
+  document.getElementById('createCategoryModal').classList.add('hidden');
+  showToast('✅ 分类创建成功');
+});
+
+const editCategory = requireAuth(async function(catId) {
+  const cat = categories.find(c => c.id === catId);
+  const newName = prompt('输入新分类名：', cat.name);
+  if (!newName || newName === cat.name) return;
+
+  const name_cipher = await encrypt(newName, masterKey);
+  await fetch(`${API_BASE}/category`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-User-Id': userId },
+    body: JSON.stringify({ id: catId, name_cipher })
+  });
+  await loadAllData();
+  showToast('✅ 分类修改成功');
+});
+
+const deleteCategory = requireAuth(async function(id) {
+  if (!confirm('确定删除？分类下的笔记不会删除')) return;
+  await fetch(`${API_BASE}/category`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', 'X-User-Id': userId },
+    body: JSON.stringify({ id })
+  });
+  await loadAllData();
+  showToast('✅ 分类删除成功');
+});
+
+// ====================== 仪表盘 ======================
+function renderDashboard() {
+  if (!domCache.statNotes) return;
+
+  const totalNotes = notes.length;
+  const totalCats = categories.length;
+  const allTags = new Set();
+  notes.forEach(note => note.tags.forEach(tag => allTags.add(tag)));
+  const totalTags = allTags.size;
+  const lastUpdate = notes.length > 0 ? Math.max(...notes.map(n => n.updated_at)) : 0;
+
+  domCache.statNotes.textContent = totalNotes;
+  domCache.statCats.textContent = totalCats;
+  domCache.statTags.textContent = totalTags;
+  domCache.statLastUpdate.textContent = lastUpdate ? timeAgo(lastUpdate) : '暂无';
+
+  const recentNotes = notes.slice(0, 6);
+  let html = '';
+  if (recentNotes.length === 0) {
+    html = '<div class="text-center text-secondary py-8">暂无笔记，点击右上角「新建笔记」开始</div>';
+  } else {
+    recentNotes.forEach(note => {
+      const catName = categories.find(c => c.id === note.category)?.name || '未分类';
+      html += `
+        <div class="p-3 border border-dark-700 rounded-lg hover:border-primary transition-all cursor-pointer" onclick="openNote('${note.id}')">
+          <h4 class="font-medium">${note.title || '无标题'}</h4>
+          <div class="text-xs text-secondary mt-1 flex justify-between">
+            <span>${catName}</span>
+            <span>${timeAgo(note.updated_at)}</span>
+          </div>
+        </div>
+      `;
+    });
+  }
+  domCache.recentNotes.innerHTML = html;
+}
+
+// ====================== 笔记渲染 ======================
+function renderNotes(filteredNotes = null) {
+  if (!domCache.notesList) return;
+
+  const notesToRender = filteredNotes || notes;
+  let html = '';
+
+  if (notesToRender.length === 0) {
+    html = '<div class="text-center text-secondary py-8">暂无笔记</div>';
+  } else {
+    for (const note of notesToRender) {
+      const categoryName = categories.find(c => c.id === note.category)?.name || '未分类';
+      html += `
+        <div class="p-3 border border-dark-700 rounded-lg hover:border-primary cursor-pointer transition-all ${currentNoteId === note.id ? 'border-primary bg-primary/10' : ''}" onclick="openNote('${note.id}')">
+          <h4 class="font-medium truncate">${note.title || '无标题'}</h4>
+          <div class="text-xs text-secondary mt-1">
+            ${categoryName} · 修改${note.revision_count}次
+          </div>
+          <div class="text-xs text-secondary mt-1">
+            ${timeAgo(note.updated_at)}
+          </div>
+        </div>
+      `;
+    }
+  }
+  domCache.notesList.innerHTML = html;
+}
+
+function filterByCategory(categoryId) {
+  let filtered = notes;
+  if (categoryId) filtered = notes.filter(note => note.category === categoryId);
+  renderNotes(filtered);
+}
+
+// ====================== 视图切换 ======================
+function switchView(view) {
+  currentView = view;
+  document.getElementById('dashboardView').classList.add('hidden');
+  document.getElementById('editorView').classList.add('hidden');
+  document.getElementById('knowledgeView').classList.add('hidden');
+  
+  if (view === 'dashboard') {
+    document.getElementById('dashboardView').classList.remove('hidden');
+    renderDashboard();
+  } else if (view === 'editor') {
+    document.getElementById('editorView').classList.remove('hidden');
+  } else if (view === 'knowledge') {
+    document.getElementById('knowledgeView').classList.remove('hidden');
+    currentKnowledgeView = 'home';
+    currentKnowledgeCategory = null;
+    currentKnowledgeNote = null;
+    renderKnowledgeView();
+  }
+  renderCategories();
+}
+
+// ====================== ✅ 核心修复：彻底解决分类/标签回显问题 ======================
+const createNewNote = requireAuth(function() {
+  currentNoteId = crypto.randomUUID();
+  // 新建笔记默认无分类、无标签
+  domCache.noteTitle.value = '';
+  domCache.noteContent.value = '';
+  domCache.noteCategory.value = '';
+  domCache.noteTags.value = '';
+  domCache.noteMeta.innerHTML = `新建笔记 · ${formatTime(Date.now())}`;
+  switchView('editor');
+  renderNotes();
+});
+
+// ✅ 100%修复：打开旧笔记时，分类和标签精准回显
+const openNote = requireAuth(async function(id) {
+  currentNoteId = id;
+  // 1. 从最新的全局数据中获取笔记信息，确保是最后保存的版本
+  const targetNote = notes.find(n => n.id === id);
+  if (!targetNote) {
+    showToast('笔记不存在', 'error');
+    return;
+  }
+
+  // 2. 强制重新渲染分类下拉框，确保所有分类option都已完整写入DOM
+  renderCategories();
+
+  // 3. 双重等待+兜底，确保浏览器100%完成DOM渲染，下拉框option完全生效
+  await new Promise(resolve => {
+    // 双重requestAnimationFrame确保浏览器完成渲染
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        // 额外10ms兜底，确保低性能设备也能完成渲染
+        setTimeout(resolve, 10);
+      });
+    });
+  });
+
+  // 4. 分类有效性校验：如果笔记绑定的分类已被删除，自动设置为无分类
+  const isCategoryExist = categories.some(cat => cat.id === targetNote.category);
+  const finalCategoryId = isCategoryExist ? targetNote.category : '';
+
+  // 5. 强制回填所有数据，确保分类和标签100%正确显示
+  domCache.noteTitle.value = targetNote.title;
+  domCache.noteContent.value = targetNote.content;
+  // 分类下拉框强制赋值
+  domCache.noteCategory.value = finalCategoryId;
+  // 标签输入框强制赋值，数组转逗号分隔字符串
+  domCache.noteTags.value = targetNote.tags.join(', ');
+  // 元信息回填
+  domCache.noteMeta.innerHTML = `
+    创建于: ${formatTime(targetNote.created_at)} · 
+    修改${targetNote.revision_count}次 · 
+    最近更新: ${timeAgo(targetNote.updated_at)}
+  `;
+
+  // 6. 切换到编辑器视图
+  switchView('editor');
+  renderNotes();
+});
+
+// ✅ 保存逻辑加固，确保分类和标签正确加密保存
+const saveCurrentNote = requireAuth(async function() {
+  if (!currentNoteId) createNewNote();
+
+  const title = domCache.noteTitle.value.trim();
+  const content = domCache.noteContent.value;
+  // 从下拉框获取选中的分类ID
+  const categoryId = domCache.noteCategory.value;
+  // 从标签输入框获取标签，转成数组
+  const tags = domCache.noteTags.value
+    .split(',')
+    .map(t => t.trim())
+    .filter(t => t);
+
+  if (!title) {
+    showToast('请输入标题', 'error');
+    return;
+  }
+
+  try {
+    // 所有字段统一加密
+    const title_cipher = await encrypt(title, masterKey);
+    const ciphertext = await encrypt(content, masterKey);
+    const category_cipher = await encrypt(categoryId, masterKey);
+    const tags_cipher = await encrypt(JSON.stringify(tags), masterKey);
+
+    const res = await fetch(`${API_BASE}/note`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-User-Id': userId },
+      body: JSON.stringify({ 
+        id: currentNoteId, 
+        title_cipher, 
+        ciphertext, 
+        category_cipher, 
+        tags_cipher 
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      showToast('保存失败: ' + (err.err || '未知错误'), 'error');
+      return;
+    }
+
+    // 保存成功后重新加载数据，确保全局数据是最新的
+    await loadAllData();
+    showToast('✅ 保存成功');
+  } catch (e) {
+    console.error(e);
+    showToast('保存失败', 'error');
+  }
+});
+
+const deleteCurrentNote = requireAuth(async function() {
+  if (!currentNoteId) return;
+  if (!confirm('确定删除？不可恢复')) return;
+
+  await fetch(`${API_BASE}/note`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', 'X-User-Id': userId },
+    body: JSON.stringify({ id: currentNoteId })
+  });
+
+  await loadAllData();
+  currentNoteId = null;
+  switchView('dashboard');
+  showToast('✅ 删除成功');
+});
+
+// ====================== 分享功能 ======================
+function showShareModal() {
+  if (!currentNoteId) {
+    showToast('请先选择笔记', 'error');
+    return;
+  }
+  document.getElementById('shareModal').classList.remove('hidden');
+  document.getElementById('shareResult').classList.add('hidden');
+}
+
+function hideShareModal() {
+  document.getElementById('shareModal').classList.add('hidden');
+}
+
+const createShare = requireAuth(async function() {
+  const maxViews = parseInt(document.getElementById('shareMaxViews').value) || 0;
+  const expiresIn = parseInt(document.getElementById('shareExpires').value) || 0;
+
+  try {
+    const res = await fetch(`${API_BASE}/share/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-User-Id': userId },
+      body: JSON.stringify({ note_id: currentNoteId, max_views: maxViews, expires_in_hours: expiresIn })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      document.getElementById('shareLink').value = data.share_url;
+      document.getElementById('shareResult').classList.remove('hidden');
+      showToast('✅ 分享链接生成成功');
+    } else {
+      showToast('创建分享失败', 'error');
+    }
+  } catch (e) {
+    console.error(e);
+    showToast('创建分享失败', 'error');
+  }
+});
+
+function copyShareLink() {
+  const link = document.getElementById('shareLink');
+  link.select();
+  navigator.clipboard.writeText(link.value);
+  showToast('✅ 链接已复制');
+}
+
+// 分享页面渲染
+async function renderSharePage(shareKey) {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('appPage').classList.add('hidden');
+  document.getElementById('sharePage').classList.remove('hidden');
+
+  try {
+    const res = await fetch(`${API_BASE}/share/${shareKey}`);
+    if (!res.ok) {
+      const err = await res.json();
+      document.getElementById('shareContent').innerHTML = `
+        <div class="text-center py-16">
+          <div class="text-5xl mb-4">😢</div>
+          <h2 class="text-2xl font-bold mb-2">链接无效</h2>
+          <p class="text-secondary">${err.err || '链接已过期或不存在'}</p>
+          <a href="/" class="mt-4 inline-block px-4 py-2 bg-primary text-white rounded">返回首页</a>
+        </div>
+      `;
+      return;
+    }
+
+    const data = await res.json();
+    const title = data.title_cipher ? await decrypt(data.title_cipher, '') : '无标题';
+    const content = data.ciphertext ? await decrypt(data.ciphertext, '') : '无内容';
+
+    document.getElementById('shareTitle').textContent = title;
+    document.getElementById('shareContent').innerHTML = marked.parse(content);
+  } catch (e) {
+    console.error(e);
+    document.getElementById('shareContent').innerHTML = '<div class="text-center text-danger py-16">加载失败</div>';
+  }
+}
+
+// ====================== 知识库核心功能 ======================
+function renderKnowledgeView() {
+  document.getElementById('knowledgeHomeView').classList.add('hidden');
+  document.getElementById('knowledgeCategoryView').classList.add('hidden');
+  document.getElementById('knowledgeDetailView').classList.add('hidden');
+
+  if (currentKnowledgeView === 'home') {
+    document.getElementById('knowledgeHomeView').classList.remove('hidden');
+    renderKnowledgeHome();
+  } else if (currentKnowledgeView === 'category') {
+    document.getElementById('knowledgeCategoryView').classList.remove('hidden');
+    renderKnowledgeCategory();
+  } else if (currentKnowledgeView === 'detail') {
+    document.getElementById('knowledgeDetailView').classList.remove('hidden');
+    renderKnowledgeDetail();
+  }
+
+  renderKnowledgeTree();
+  renderKnowledgeBreadcrumb();
+}
+
+function renderKnowledgeBreadcrumb() {
+  if (!domCache.knowledgeBreadcrumb) return;
+  
+  let html = `<span class="cursor-pointer hover:text-primary" onclick="switchKnowledgeHome()">知识库</span>`;
+
+  if (currentKnowledgeView === 'category' || currentKnowledgeView === 'detail') {
+    const catName = currentKnowledgeCategory === 'uncategorized' 
+      ? '未分类' 
+      : categories.find(c => c.id === currentKnowledgeCategory)?.name || '未分类';
+    html += `<i class="fa-solid fa-chevron-right mx-2 text-secondary text-xs"></i>
+             <span class="${currentKnowledgeView === 'category' ? '' : 'cursor-pointer hover:text-primary'}" 
+                   onclick="${currentKnowledgeView === 'detail' ? `switchKnowledgeCategory('${currentKnowledgeCategory}')` : ''}">${catName}</span>`;
+  }
+
+  if (currentKnowledgeView === 'detail') {
+    const note = notes.find(n => n.id === currentKnowledgeNote);
+    html += `<i class="fa-solid fa-chevron-right mx-2 text-secondary text-xs"></i>
+             <span>${note?.title || '无标题'}</span>`;
+  }
+
+  domCache.knowledgeBreadcrumb.innerHTML = html;
+}
+
+function switchKnowledgeHome() {
+  currentKnowledgeView = 'home';
+  currentKnowledgeCategory = null;
+  currentKnowledgeNote = null;
+  renderKnowledgeView();
+}
+
+function switchKnowledgeCategory(catId) {
+  currentKnowledgeView = 'category';
+  currentKnowledgeCategory = catId;
+  currentKnowledgeNote = null;
+  renderKnowledgeView();
+}
+
+function openKnowledgeNote(noteId) {
+  currentKnowledgeView = 'detail';
+  currentKnowledgeNote = noteId;
+  const note = notes.find(n => n.id === noteId);
+  currentKnowledgeCategory = note?.category || 'uncategorized';
+  renderKnowledgeView();
+}
+
+function renderKnowledgeHome() {
+  if (!domCache.knowledgeHomeContent) return;
+
+  const totalNotes = notes.length;
+  const totalCats = categories.length;
+
+  let html = `
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold mb-4">我的知识库</h1>
+      <p class="text-secondary text-lg mb-6">这里是你的个人知识空间，所有内容端对端加密，仅你可查看。</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bg-dark-900 p-4 rounded-xl border border-dark-700">
+          <div class="text-secondary text-sm mb-1">总笔记数</div>
+          <div class="text-3xl font-bold">${totalNotes}</div>
+        </div>
+        <div class="bg-dark-900 p-4 rounded-xl border border-dark-700">
+          <div class="text-secondary text-sm mb-1">总分类数</div>
+          <div class="text-3xl font-bold">${totalCats}</div>
+        </div>
+        <div class="bg-dark-900 p-4 rounded-xl border border-dark-700">
+          <div class="text-secondary text-sm mb-1">最近更新</div>
+          <div class="text-xl font-bold">${totalNotes > 0 ? timeAgo(Math.max(...notes.map(n => n.updated_at))) : '暂无'}</div>
+        </div>
+      </div>
+    </div>
+    <h2 class="text-2xl font-bold mb-4">文档分类</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+  `;
+
+  // 未分类卡片
+  const uncategorizedNotes = notes.filter(note => !note.category || note.category === '');
+  html += `
+    <div class="bg-dark-900 p-6 rounded-xl border border-dark-700 hover:border-primary transition-all cursor-pointer" 
+         onclick="switchKnowledgeCategory('uncategorized')">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-folder text-yellow-500 text-xl"></i>
+          <h3 class="text-xl font-bold">未分类</h3>
+        </div>
+        <span class="text-secondary">${uncategorizedNotes.length} 篇</span>
+      </div>
+      <div class="text-secondary text-sm">
+        ${uncategorizedNotes.slice(0, 3).map(note => `· ${note.title || '无标题'}`).join('<br>')}
+        ${uncategorizedNotes.length > 3 ? `<br>· 还有${uncategorizedNotes.length - 3}篇文档` : ''}
+      </div>
+    </div>
+  `;
+
+  // 分类卡片
+  categories.forEach(cat => {
+    const catNotes = notes.filter(note => note.category === cat.id);
+    html += `
+      <div class="bg-dark-900 p-6 rounded-xl border border-dark-700 hover:border-primary transition-all cursor-pointer" 
+           onclick="switchKnowledgeCategory('${cat.id}')">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-folder text-yellow-500 text-xl"></i>
+            <h3 class="text-xl font-bold">${cat.name}</h3>
+          </div>
+          <span class="text-secondary">${catNotes.length} 篇</span>
+        </div>
+        <div class="text-secondary text-sm">
+          ${catNotes.slice(0, 3).map(note => `· ${note.title || '无标题'}`).join('<br>')}
+          ${catNotes.length > 3 ? `<br>· 还有${catNotes.length - 3}篇文档` : ''}
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  domCache.knowledgeHomeContent.innerHTML = html;
+}
+
+function renderKnowledgeCategory() {
+  if (!domCache.knowledgeCategoryContent) return;
+
+  let catNotes = [];
+  let catName = '未分类';
+
+  if (currentKnowledgeCategory === 'uncategorized') {
+    catNotes = notes.filter(note => !note.category || note.category === '');
+  } else {
+    const cat = categories.find(c => c.id === currentKnowledgeCategory);
+    catName = cat?.name || '未分类';
+    catNotes = notes.filter(note => note.category === currentKnowledgeCategory);
+  }
+
+  let html = `
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold mb-2">${catName}</h1>
+      <p class="text-secondary">共 ${catNotes.length} 篇文档</p>
+    </div>
+    <div class="grid grid-cols-1 gap-3">
+  `;
+
+  if (catNotes.length === 0) {
+    html += `<div class="text-center text-secondary py-8">该分类下暂无文档</div>`;
+  } else {
+    catNotes.sort((a, b) => b.updated_at - a.updated_at).forEach(note => {
+      html += `
+        <div class="p-4 border border-dark-700 rounded-lg hover:border-primary transition-all cursor-pointer" 
+             onclick="openKnowledgeNote('${note.id}')">
+          <h3 class="text-xl font-medium mb-2">${note.title || '无标题'}</h3>
+          <div class="flex justify-between items-center text-sm text-secondary">
+            <span>修改${note.revision_count}次</span>
+            <span>${timeAgo(note.updated_at)}</span>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  html += `</div>`;
+  domCache.knowledgeCategoryContent.innerHTML = html;
+}
+
+function renderKnowledgeDetail() {
+  const note = notes.find(n => n.id === currentKnowledgeNote);
+  if (!note || !domCache.knowledgeDetailTitle) return;
+
+  domCache.knowledgeDetailTitle.textContent = note.title || '无标题';
+  domCache.knowledgeDetailMeta.innerHTML = `
+    <span>修改${note.revision_count}次</span>
+    <span class="mx-2">·</span>
+    <span>最近更新：${formatTime(note.updated_at)}</span>
+  `;
+  domCache.knowledgeDetailContent.innerHTML = marked.parse(note.content || '');
+}
+
+function editCurrentKnowledgeNote() {
+  if (!currentKnowledgeNote) return;
+  openNote(currentKnowledgeNote);
+}
+
+function renderKnowledgeTree() {
+  if (!domCache.knowledgeTree) return;
+
+  let html = '';
+  // 未分类
+  const uncategorizedNotes = notes.filter(note => !note.category || note.category === '');
+  const filteredUncategorized = uncategorizedNotes.filter(note => 
+    note.title.toLowerCase().includes(searchKeyword) || note.content.toLowerCase().includes(searchKeyword)
+  );
+
+  html += `
+    <div class="mb-2">
+      <div class="flex items-center p-2 rounded hover:bg-dark-800 cursor-pointer" onclick="toggleFold('uncategorized')">
+        <i class="fa-solid fa-caret-down tree-fold ${foldState['uncategorized'] ? 'folded' : ''} mr-2 text-secondary"></i>
+        <i class="fa-solid fa-folder mr-2 text-yellow-500"></i>
+        <span onclick="switchKnowledgeCategory('uncategorized')" class="hover:text-primary">未分类</span>
+        <span class="ml-2 text-xs text-secondary">(${filteredUncategorized.length})</span>
+      </div>
+      <div class="ml-6 ${foldState['uncategorized'] ? 'hidden' : ''}">
+        ${filteredUncategorized.map(note => `
+          <div class="p-2 rounded hover:bg-dark-800 cursor-pointer ${currentKnowledgeNote === note.id ? 'bg-primary/20' : ''}" onclick="openKnowledgeNote('${note.id}')">
+            <i class="fa-solid fa-file-lines mr-2 text-secondary"></i>
+            <span class="truncate">${note.title || '无标题'}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  // 分类列表
+  categories.forEach(cat => {
+    const catNotes = notes.filter(note => note.category === cat.id);
+    const filteredNotes = catNotes.filter(note => 
+      note.title.toLowerCase().includes(searchKeyword) || note.content.toLowerCase().includes(searchKeyword)
+    );
+
+    html += `
+      <div class="mb-2">
+        <div class="flex items-center p-2 rounded hover:bg-dark-800 cursor-pointer" onclick="toggleFold('${cat.id}')">
+          <i class="fa-solid fa-caret-down tree-fold ${foldState[cat.id] ? 'folded' : ''} mr-2 text-secondary"></i>
+          <i class="fa-solid fa-folder mr-2 text-yellow-500"></i>
+          <span onclick="switchKnowledgeCategory('${cat.id}')" class="hover:text-primary">${cat.name}</span>
+          <span class="ml-2 text-xs text-secondary">(${filteredNotes.length})</span>
+        </div>
+        <div class="ml-6 ${foldState[cat.id] ? 'hidden' : ''}">
+          ${filteredNotes.map(note => `
+            <div class="p-2 rounded hover:bg-dark-800 cursor-pointer ${currentKnowledgeNote === note.id ? 'bg-primary/20' : ''}" onclick="openKnowledgeNote('${note.id}')">
+              <i class="fa-solid fa-file-lines mr-2 text-secondary"></i>
+              <span class="truncate">${note.title || '无标题'}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  });
+  domCache.knowledgeTree.innerHTML = html;
+}
+
+function toggleFold(catId) {
+  foldState[catId] = !foldState[catId];
+  renderKnowledgeTree();
+}
+
+// ====================== 页面初始化 ======================
+document.addEventListener('DOMContentLoaded', function() {
+  // 回车登录
+  document.getElementById('loginKey').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') loginOrRegister();
+  });
+
+  // 知识库搜索防抖
+  document.getElementById('knowledgeSearch').addEventListener('input', debounce(function(e) {
+    searchKeyword = e.target.value.toLowerCase();
+    renderKnowledgeTree();
+  }));
+
+  // 创建分类弹窗回车确认
+  document.getElementById('categoryNameInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') createCategoryConfirm();
+  });
+
+  // 处理分享路由
+  const path = window.location.pathname;
+  if (path.startsWith('/share/')) {
+    const shareKey = path.split('/').pop();
+    renderSharePage(shareKey);
+  }
+});
+</script>
+
+<!-- 分享页面 -->
+<div id="sharePage" class="hidden min-h-screen bg-dark-900">
+  <nav class="w-full px-6 py-4 flex justify-between items-center border-b border-dark-800">
+    <div class="flex items-center gap-2">
+      <i class="fa-solid fa-lock text-primary text-xl"></i>
+      <span class="text-xl font-bold">加密笔记分享</span>
+    </div>
+    <a href="/" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90">返回首页</a>
+  </nav>
+  <div class="max-w-4xl mx-auto p-8">
+    <h1 id="shareTitle" class="text-3xl font-bold mb-6"></h1>
+    <div id="shareContent" class="markdown-body"></div>
+  </div>
+</div>
+
+<!-- 登录页 -->
+<div id="loginPage" class="min-h-screen bg-dark-900 flex flex-col">
+  <nav class="w-full px-6 py-4 flex justify-between items-center border-b border-dark-800">
+    <div class="flex items-center gap-2">
+      <i class="fa-solid fa-lock text-primary text-xl"></i>
+      <span class="text-xl font-bold">加密笔记</span>
+    </div>
+    <button onclick="document.getElementById('loginKey').focus()" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90">
+      登录/创建保险库
+    </button>
+  </nav>
+
+  <div class="flex-1 flex flex-col lg:flex-row items-center justify-center px-6 py-12 gap-12 max-w-7xl mx-auto">
+    <div class="w-full lg:w-1/3 max-w-md">
+      <div class="bg-dark-800 p-8 rounded-2xl border border-dark-700">
+        <div class="text-center mb-8">
+          <div class="text-5xl mb-4 text-primary"><i class="fa-solid fa-shield-halved"></i></div>
+          <h2 class="text-2xl font-bold mb-2">端对端加密私人笔记</h2>
+          <p class="text-secondary">所有数据浏览器加密后上传，仅你可解密</p>
+        </div>
+        <input type="password" id="loginKey" placeholder="输入主密钥（新密钥自动创建账号）" 
+               class="w-full p-3 bg-dark-900 border border-dark-700 rounded-lg mb-6 focus:outline-none focus:ring-2 focus:ring-primary">
+        <button onclick="loginOrRegister()" class="w-full bg-primary hover:bg-primary/90 text-white p-3 rounded-lg font-medium transition-all mb-4">
+          开始使用
+        </button>
+        <button onclick="showRecoveryModal()" class="w-full text-secondary hover:text-white text-sm">
+          忘记主密钥？使用恢复码重置
+        </button>
+      </div>
+    </div>
+
+    <div class="w-full lg:w-2/3">
+      <h3 class="text-3xl font-bold mb-8 text-center lg:text-left">为什么选择我们的加密笔记？</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-dark-800 p-6 rounded-xl border border-dark-700 hover:border-primary transition-all">
+          <div class="text-3xl mb-3 text-primary"><i class="fa-solid fa-lock"></i></div>
+          <h4 class="text-xl font-bold mb-2">军工级端对端加密</h4>
+          <p class="text-secondary">AES-GCM加密，内容仅在浏览器加密/解密，任何人无法读取</p>
+        </div>
+        <div class="bg-dark-800 p-6 rounded-xl border border-dark-700 hover:border-primary transition-all">
+          <div class="text-3xl mb-3 text-primary"><i class="fa-solid fa-key"></i></div>
+          <h4 class="text-xl font-bold mb-2">一次性恢复码</h4>
+          <p class="text-secondary">主密钥丢失可通过一次性恢复码重置，每个恢复码仅能使用一次</p>
+        </div>
+        <div class="bg-dark-800 p-6 rounded-xl border border-dark-700 hover:border-primary transition-all">
+          <div class="text-3xl mb-3 text-primary"><i class="fa-solid fa-book-open"></i></div>
+          <h4 class="text-xl font-bold mb-2">完整知识库系统</h4>
+          <p class="text-secondary">自动按分类归纳笔记，飞书同款知识库体验</p>
+        </div>
+        <div class="bg-dark-800 p-6 rounded-xl border border-dark-700 hover:border-primary transition-all">
+          <div class="text-3xl mb-3 text-primary"><i class="fa-solid fa-users"></i></div>
+          <h4 class="text-xl font-bold mb-2">多空间完全隔离</h4>
+          <p class="text-secondary">不同主密钥对应完全独立的加密空间，互不干扰</p>
+        </div>
+        <div class="bg-dark-800 p-6 rounded-xl border border-dark-700 hover:border-primary transition-all">
+          <div class="text-3xl mb-3 text-primary"><i class="fa-solid fa-share-nodes"></i></div>
+          <h4 class="text-xl font-bold mb-2">阅后即焚分享</h4>
+          <p class="text-secondary">支持自定义访问次数、过期时间，达到条件自动销毁</p>
+        </div>
+        <div class="bg-dark-800 p-6 rounded-xl border border-dark-700 hover:border-primary transition-all">
+          <div class="text-3xl mb-3 text-primary"><i class="fa-solid fa-wallet"></i></div>
+          <h4 class="text-xl font-bold mb-2">零成本永久使用</h4>
+          <p class="text-secondary">基于Cloudflare免费额度构建，个人使用完全足够</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 主应用界面 -->
+<div id="appPage" class="hidden min-h-screen bg-dark-900">
+  <nav class="w-full px-6 py-3 flex justify-between items-center border-b border-dark-800 sticky top-0 z-50 bg-dark-900/90 backdrop-blur-sm">
+    <h1 class="text-xl font-bold"><i class="fa-solid fa-book mr-2"></i> 我的加密笔记</h1>
+    <div class="flex gap-3">
+      <button onclick="switchView('knowledge')" class="px-3 py-1.5 bg-secondary rounded hover:bg-secondary/90 transition-all">
+        <i class="fa-solid fa-book-open mr-1"></i> 知识库
+      </button>
+      <button onclick="showCreateCategoryModal()" class="px-3 py-1.5 bg-dark-800 rounded hover:bg-dark-700 transition-all">
+        <i class="fa-solid fa-folder-plus mr-1"></i> 分类
+      </button>
+      <button onclick="createNewNote()" class="px-3 py-1.5 bg-primary rounded hover:bg-primary/90 transition-all">
+        <i class="fa-solid fa-plus mr-1"></i> 新建笔记
+      </button>
+      <button onclick="logout()" class="px-3 py-1.5 bg-danger rounded hover:bg-danger/90 transition-all">
+        <i class="fa-solid fa-sign-out mr-1"></i> 退出
+      </button>
+    </div>
+  </nav>
+
+  <div class="w-full px-4 py-6">
+    <div class="grid grid-cols-12 gap-6 w-full">
+      <div class="col-span-12 lg:col-span-2">
+        <div class="bg-dark-800 rounded-lg p-4 sticky top-20">
+          <h3 class="font-semibold mb-3 text-dark-100">导航</h3>
+          <div id="categoryList" class="space-y-1"></div>
+        </div>
+      </div>
+
+      <div class="col-span-12 lg:col-span-3">
+        <div class="bg-dark-800 rounded-lg p-4 h-full">
+          <h3 class="font-semibold mb-3 text-dark-100">笔记列表</h3>
+          <div id="notesList" class="space-y-3 max-h-[calc(100vh-180px)] overflow-y-auto scrollbar-hide"></div>
+        </div>
+      </div>
+
+      <div class="col-span-12 lg:col-span-7">
+        <div id="dashboardView" class="bg-dark-800 rounded-lg p-6">
+          <h2 class="text-2xl font-bold mb-6">数据总览</h2>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-dark-900 p-4 rounded-xl border border-dark-700">
+              <div class="text-secondary text-sm mb-1">总笔记数</div>
+              <div class="text-3xl font-bold" id="statNotes">0</div>
+            </div>
+            <div class="bg-dark-900 p-4 rounded-xl border border-dark-700">
+              <div class="text-secondary text-sm mb-1">总分类数</div>
+              <div class="text-3xl font-bold" id="statCats">0</div>
+            </div>
+            <div class="bg-dark-900 p-4 rounded-xl border border-dark-700">
+              <div class="text-secondary text-sm mb-1">总标签数</div>
+              <div class="text-3xl font-bold" id="statTags">0</div>
+            </div>
+            <div class="bg-dark-900 p-4 rounded-xl border border-dark-700">
+              <div class="text-secondary text-sm mb-1">最近更新</div>
+              <div class="text-lg font-bold" id="statLastUpdate">暂无</div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4">最近更新</h3>
+          <div id="recentNotes" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+        </div>
+
+        <div id="editorView" class="hidden bg-dark-800 rounded-lg p-6">
+          <div id="noteMeta" class="text-sm text-secondary mb-4"></div>
+          <input type="text" id="noteTitle" placeholder="笔记标题" 
+                 class="w-full text-2xl font-bold bg-dark-900 border-b border-dark-700 rounded p-3 mb-4 focus:outline-none focus:border-primary">
+          <div class="flex gap-3 mb-4 flex-wrap">
+            <select id="noteCategory" class="bg-dark-900 border border-dark-700 rounded p-2 focus:outline-none focus:ring-1 focus:ring-primary">
+              <option value="">无分类</option>
+            </select>
+            <input type="text" id="noteTags" placeholder="标签，用逗号分隔" 
+                   class="flex-1 min-w-[200px] bg-dark-900 border border-dark-700 rounded p-2 focus:outline-none focus:ring-1 focus:ring-primary">
+            <button onclick="showShareModal()" class="px-3 py-2 bg-success rounded hover:bg-success/90 transition-all">
+              <i class="fa-solid fa-share-nodes mr-1"></i> 分享
+            </button>
+          </div>
+          <textarea id="noteContent" rows="18" placeholder="在这里写笔记，支持Markdown语法..." 
+                    class="w-full bg-dark-900 border border-dark-700 rounded p-3 mb-4 font-mono focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
+          <div class="flex gap-3 justify-end">
+            <button onclick="deleteCurrentNote()" class="px-4 py-2 bg-danger rounded hover:bg-danger/90 transition-all">
+              <i class="fa-solid fa-trash mr-1"></i> 删除笔记
+            </button>
+            <button onclick="saveCurrentNote()" class="px-6 py-2 bg-primary rounded hover:bg-primary/90 transition-all">
+              <i class="fa-solid fa-save mr-1"></i> 保存笔记
+            </button>
+          </div>
+        </div>
+
+        <!-- 知识库视图 -->
+        <div id="knowledgeView" class="hidden bg-dark-850 rounded-lg h-[calc(100vh-120px)] grid grid-cols-12">
+          <div class="col-span-3 border-r border-dark-700 p-4 flex flex-col">
+            <div class="mb-4">
+              <h2 class="text-lg font-bold mb-3"><i class="fa-solid fa-book-open mr-2"></i> 知识库</h2>
+              <div class="relative">
+                <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-secondary"></i>
+                <input id="knowledgeSearch" type="text" placeholder="搜索文档" 
+                       class="w-full pl-9 pr-3 py-2 bg-dark-900 border border-dark-700 rounded focus:outline-none focus:ring-1 focus:ring-primary">
+              </div>
+            </div>
+            <div id="knowledgeTree" class="flex-1 overflow-y-auto scrollbar-hide space-y-1"></div>
+          </div>
+
+          <div class="col-span-9 flex flex-col">
+            <div class="border-b border-dark-700 p-4 flex justify-between items-center">
+              <div id="knowledgeBreadcrumb" class="text-sm flex items-center"></div>
+              <button onclick="editCurrentKnowledgeNote()" class="px-3 py-1.5 bg-primary rounded hover:bg-primary/90 transition-all">
+                <i class="fa-solid fa-edit mr-1"></i> 编辑
+              </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto scrollbar-hide p-8 max-w-5xl mx-auto w-full">
+              <div id="knowledgeHomeView" class="hidden">
+                <div id="knowledgeHomeContent"></div>
+              </div>
+
+              <div id="knowledgeCategoryView" class="hidden">
+                <div id="knowledgeCategoryContent"></div>
+              </div>
+
+              <div id="knowledgeDetailView" class="hidden">
+                <h1 id="knowledgeDetailTitle" class="text-3xl font-bold mb-4"></h1>
+                <div id="knowledgeDetailMeta" class="text-sm text-secondary mb-8"></div>
+                <div id="knowledgeDetailContent" class="markdown-body"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 创建分类弹窗 -->
+<div id="createCategoryModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-800 rounded-lg p-6 w-full max-w-md">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-bold">创建分类</h3>
+      <button onclick="document.getElementById('createCategoryModal').classList.add('hidden')" class="text-secondary hover:text-white">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="mb-6">
+      <label class="block text-sm font-medium mb-2">分类名称</label>
+      <input type="text" id="categoryNameInput" placeholder="请输入分类名称" 
+             class="w-full p-3 bg-dark-900 border border-dark-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <button onclick="document.getElementById('createCategoryModal').classList.add('hidden')" class="px-4 py-2 bg-dark-700 rounded hover:bg-dark-600 transition-all">取消</button>
+      <button onclick="createCategoryConfirm()" class="px-4 py-2 bg-primary rounded hover:bg-primary/90 transition-all">确认创建</button>
+    </div>
+  </div>
+</div>
+
+<!-- 分享模态框 -->
+<div id="shareModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-800 rounded-lg p-6 w-full max-w-md">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-bold">分享笔记</h3>
+      <button onclick="hideShareModal()" class="text-secondary hover:text-white"><i class="fa-solid fa-times"></i></button>
+    </div>
+    
+    <div class="space-y-4 mb-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">最大观看次数</label>
+        <input type="number" id="shareMaxViews" value="1" min="0" 
+               class="w-full p-2 bg-dark-900 border border-dark-700 rounded focus:outline-none focus:ring-1 focus:ring-primary">
+        <p class="text-xs text-secondary mt-1">0表示永久有效，无次数限制</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">过期时间（小时）</label>
+        <input type="number" id="shareExpires" value="0" min="0" 
+               class="w-full p-2 bg-dark-900 border border-dark-700 rounded focus:outline-none focus:ring-1 focus:ring-primary">
+        <p class="text-xs text-secondary mt-1">0表示永不过期</p>
+      </div>
+    </div>
+
+    <div id="shareResult" class="hidden mb-4 p-3 bg-dark-900 rounded border border-dark-700">
+      <p class="text-sm font-medium mb-2">分享链接已生成：</p>
+      <div class="flex gap-2">
+        <input type="text" id="shareLink" readonly class="flex-1 p-2 bg-dark-800 border border-dark-700 rounded text-sm">
+        <button onclick="copyShareLink()" class="px-3 py-2 bg-primary rounded text-sm">复制</button>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <button onclick="hideShareModal()" class="px-4 py-2 bg-dark-700 rounded hover:bg-dark-600 transition-all">取消</button>
+      <button onclick="createShare()" class="px-4 py-2 bg-primary rounded hover:bg-primary/90 transition-all">生成分享链接</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
