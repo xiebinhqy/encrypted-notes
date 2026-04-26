@@ -51,3 +51,89 @@
 3. 将其修改为你刚才的 Worker 地址：
    ```javascript
    const API_BASE = "https://your-worker-name.xxx.workers.dev";
+4. 保存文件
+### 第三步：部署前端（Cloudflare Pages）
+1. 在 Cloudflare Dashboard 进入 Workers & Pages -> Create Application
+2. 选择 Pages 选项卡
+3. 你可以选择：
+- **直接上传**：将 frontend 文件夹拖拽上传
+- **连接 Git**：将代码推送到 GitHub 后自动部署（推荐）
+4. 部署完成后，你会得到一个 Pages 地址（例如：https://encrypted-notes.pages.dev）
+
+### 第四步：创建 KV 命名空间（必须）
+1. 在 Cloudflare Dashboard 进入 Workers & Pages -> KV
+2. 点击 Create Namespace，名称填写 NOTES_KV
+3. 回到你的 Worker 设置页面 -> Settings -> Variables
+4. 在 KV Namespace Bindings 部分点击 Add binding
+5. Variable name 填写 NOTES_KV，KV namespace 选择刚才创建的 NOTES_KV
+6. 点击 Save and Deploy
+🎉 恭喜！你的加密笔记系统已经部署完成！
+
+📖 使用说明
+
+注册 / 登录
+1. 打开你的 Pages 地址
+2. 在密码框输入一个至少 8 位的主密钥
+3. 新密钥会自动创建账号，老密钥会自动登录
+4. 重要：首次登录会显示恢复码，请务必保存！
+创建笔记
+1. 点击右上角 新建笔记
+2. 输入标题、选择分类、添加标签（可选）
+3. 在内容区使用 Markdown 编写笔记
+4. 点击 保存笔记
+管理分类
+1. 点击右上角 分类
+2. 输入分类名称并确认
+3. 在左侧导航栏可以看到你的分类
+分享笔记
+1. 打开一篇笔记
+2. 点击 分享 按钮
+3. 设置最大观看次数和过期时间（0 表示永久）
+4. 点击 生成分享链接 并复制
+
+🛠️ 技术栈
+ - 前端：HTML5 + Tailwind CSS + Vanilla JavaScript
+ - 后端：Cloudflare Workers (Serverless)
+ - 数据库：Cloudflare KV
+ - 加密：Web Crypto API (AES-GCM, SHA-256)
+ - Markdown：Marked.js + GitHub Markdown CSS
+📂 项目结构
+```
+encrypted-notes/
+├── README.md           # 项目说明文档
+├── LICENSE             # MIT 开源协议
+├── frontend/           # 前端代码
+│   └── index.html      # 单文件完整前端
+└── backend/            # 后端代码
+    └── worker.js       # Cloudflare Workers 代码
+```
+🤝 贡献指南
+欢迎提交 Issue 和 Pull Request！
+1. Fork 本项目
+2. 创建你的特性分支 (git checkout -b feature/AmazingFeature)
+3. 提交你的更改 (git commit -m 'Add some AmazingFeature')
+4. 推送到分支 (git push origin feature/AmazingFeature)
+5. 开启一个 Pull Request
+
+📄 开源协议
+本项目采用 MIT 协议 开源。
+
+🙏 致谢
+Cloudflare 提供的免费 Serverless 服务
+Tailwind CSS 提供的 CSS 框架
+Marked.js 提供的 Markdown 解析
+
+如果这个项目对你有帮助，请给个 Star ⭐ 支持一下！
+
+
+
+
+
+
+
+
+
+
+
+
+
