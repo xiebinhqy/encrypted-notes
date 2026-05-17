@@ -105,12 +105,19 @@
 
 ```
 encrypted-notes/
-├── README.md           # 项目说明文档
-├── LICENSE             # MIT 开源协议
-├── frontend/           # 前端代码
-│   └── index.html      # 单文件完整前端
-└── backend/            # 后端代码
-    └── worker.js       # Cloudflare Workers 代码
+├── backend/                # 后端 Worker 项目
+│   ├── src/
+│   │   └── index.js       # 后端入口文件
+│   └── wrangler.toml      # 后端配置文件
+└── public/                # 前端静态项目（核心）
+    ├── src/
+    │   ├── api/            # 你的API请求目录
+    │   ├── components/     # 你的UI组件目录
+    │   ├── utils/          # 工具函数目录（【这里放加密模块】）
+    │   └── app.js          # 前端主逻辑文件
+    ├── index.html          # 前端主页面
+    ├── style.css           # 前端样式文件
+    └── wrangler.toml       # 前端 Pages 配置
 ```
 🤝 贡献指南
 

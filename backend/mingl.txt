@@ -1,0 +1,62 @@
+# 1. 正确导出LOGIN_RATE_LIMIT的Key列表
+wrangler kv:key list --namespace-id=1d4a117d0f4948288289437f01956f83 | Out-File -FilePath ./login_keys.json -Encoding utf8
+
+# 2. 正确导出NOTE_HISTORY的Key列表
+wrangler kv:key list --namespace-id=d5fae0ca8b0146389e8c4ee8ae4dfab2 | Out-File -FilePath ./history_keys.json -Encoding utf8
+
+# 3. 正确导出NOTES_BACKUP的Key列表
+wrangler kv:key list --namespace-id=cfd23ee25c2b4769a8331def0296f1d9 | Out-File -FilePath ./backup_keys.json -Encoding utf8
+
+
+# 查看线上KV的所有Key
+wrangler kv:key list --namespace-id=1d4a117d0f4948288289437f01956f83
+
+
+你可以先执行wrangler kv:key list --namespace-id=【线上KV的ID】，如果输出是[]，就说明 KV 是空的，直接跳过整个同步步骤，不影响你的本地测试！
+
+wrangler kv:key list --namespace-id=1d4a117d0f4948288289437f01956f83
+
+
+三、线上 D1 数据库同步到本地（确认步骤）
+如果之前已经执行过导入，直接跳过；没做的话执行下面的命令，把线上数据库完整克隆到本地：
+
+# 1. 导出线上主库数据（只读操作，绝对不影响线上）
+wrangler d1 export notes_db --output=./backup-prod-db.sql --remote
+
+# 2. 导入到本地D1数据库
+wrangler d1 execute staging-notes-db --file=./backup-prod-db.sql --env=staging --local
+
+# 3. 导出线上备份库数据
+wrangler d1 export notes-backup --output=./backup-prod-backup.sql --remote
+
+# 4. 导入到本地D1备份库
+wrangler d1 execute staging-notes-backup --file=./backup-prod-backup.sql --env=staging --local
+
+操作	命令
+本地开发后端	cd backend && wrangler dev --env=staging --port 8787 --local
+本地开发前端	cd frontend && wrangler dev --env=preview --port 8788
+部署后端测试环境	cd backend && wrangler deploy --env=staging
+部署前端测试环境	cd frontend && wrangler deploy --env=staging
+部署后端生产环境	cd backend && wrangler deploy
+部署前端生产环境	cd frontend && wrangler deploy
+
+四、后续操作
+如果测试环境验证有问题：直接修改本地代码，重新执行 wrangler deploy --env=staging 即可更新测试环境，全程不会影响线上。
+如果测试环境完全验证通过：就可以执行上线操作，先部署后端生产环境，再部署前端生产环境
+
+# 1. 部署后端到线上（backend目录执行）
+wrangler deploy
+
+# 2. 部署前端到线上（frontend目录执行）
+wrangler deploy
+
+
+
+
+
+
+
+
+
+
+

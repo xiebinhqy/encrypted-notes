@@ -1,0 +1,40 @@
+# 排除私有功能目录（防止泄露到公共仓库）
+private/
+bf/
+encrypted-notes-local/
+test/
+yb-en/
+
+# 开发环境文件
+node_modules/
+npm-debug.log
+yarn-error.log
+.pnpm-debug.log
+
+# 环境变量文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 编辑器配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 构建产物
+dist/
+build/
+out/
+
+# Wrangler临时文件
+.wrangler/
+.history
+wrangler.toml.local
