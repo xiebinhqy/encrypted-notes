@@ -17,6 +17,7 @@ yarn-error.log
 .env.development.local
 .env.test.local
 .env.production.local
+wrangler.toml
 
 # 编辑器配置
 .vscode/

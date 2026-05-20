@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>加密笔记 - 安全登录</title>
+    
+    <!-- 外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind 配置（完全匹配您的界面） -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#7c3aed', // 紫色主色调，与您的界面一致
+                        secondary: '#8b5cf6',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        dark: {
+                            DEFAULT: '#0f172a',
+                            light: '#1e293b',
+                            lighter: '#334155',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                        'card-hover': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto { content-visibility: auto; }
+            .glass-effect {
+                background: rgba(30, 41, 59, 0.7);
+                backdrop-filter: blur(12px);
+                border: 1px solid rgba(51, 65, 85, 0.5);
+            }
+            .gradient-bg {
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            }
+            .input-focus {
+                @apply focus:ring-2 focus:ring-primary/50 focus:border-primary;
+            }
+            .btn-primary {
+                @apply bg-primary hover:bg-primary/90 text-white transition-all duration-200 rounded-lg font-medium;
+            }
+        }
+    </style>
+
+    <!-- 全局样式 -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+        }
+        
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        
+        .feature-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(51, 65, 85, 0.3);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            background: rgba(30, 41, 59, 0.7);
+            border-color: rgba(124, 58, 237, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .strength-bar {
+            height: 4px;
+            background: #334155;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .modal {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+
+<body class="text-white">
+    <!-- 版本标记: v2.2.5 - 修复登录跳转问题 -->
+
+    <!-- 顶部导航栏 -->
+    <nav class="w-full py-4 px-6 flex items-center justify-between border-b border-dark-lighter/50">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                <i class="fa-solid fa-lock text-white text-lg"></i>
+            </div>
+            <h1 class="text-xl font-bold">加密笔记</h1>
+        </div>
+        
+        <div class="flex items-center space-x-6">
+            <a href="#" class="text-gray-300 hover:text-white transition-colors text-sm">应用</a>
+            <a href="#" class="text-gray-300 hover:text-white transition-colors text-sm relative">
+                <i class="fa-solid fa-bell"></i>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </a>
+            <a href="#" class="text-gray-300 hover:text-white transition-colors text-sm">
+                <i class="fa-solid fa-gear"></i>
+            </a>
+            <a href="#" class="text-gray-300 hover:text-white transition-colors text-sm">帮助</a>
+            <button class="btn-primary px-4 py-2 text-sm">登录/创建</button>
+        </div>
+    </nav>
+
+    <!-- 主内容区域 -->
+    <main class="container mx-auto px-6 py-16">
+        <div class="flex flex-col lg:flex-row items-center justify-center gap-16">
+            <!-- 左侧登录区域 -->
+            <div class="lg:w-1/3 w-full">
+                <div class="card p-8">
+                    <div class="flex flex-col items-center mb-8">
+                        <div class="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-shield-alt text-primary text-3xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold mb-2">端对端加密私人笔记</h2>
+                        <p class="text-gray-400 text-center">所有数据在浏览器加密后上传，仅你可解密</p>
+                    </div>
+                    
+                    <!-- 主密钥输入 -->
+                    <div class="mb-4">
+                        <label class="block text-gray-300 text-sm mb-2">输入主密钥（新密钥自动创建账号）</label>
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="master-key"
+                                class="w-full bg-dark border border-dark-lighter rounded-lg px-4 py-3 pl-10 pr-10 text-white input-focus"
+                                placeholder="请输入您的主密钥"
+                            >
+                            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                <i class="fa-solid fa-key"></i>
+                            </div>
+                            <button 
+                                id="toggle-password"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                            >
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 密钥强度 -->
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-400 text-xs">密钥强度</span>
+                            <span class="text-gray-400 text-xs" id="strength-text">弱</span>
+                        </div>
+                        <div class="strength-bar">
+                            <div id="strength-fill" class="strength-fill bg-red-500 w-1/4"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 开始使用按钮 -->
+                    <button 
+                        id="start-btn"
+                        class="w-full btn-primary py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled
+                    >
+                        <i class="fa-solid fa-rocket mr-2"></i>开始使用
+                    </button>
+                    
+                    <!-- 恢复码链接 -->
+                    <div class="mt-4 text-center">
+                        <button id="recovery-btn" class="text-primary hover:text-primary/80 text-sm transition-colors">
+                            <i class="fa-solid fa-key mr-1"></i>忘记主密钥？使用恢复码重置
+                        </button>
+                    </div>
+                    
+                    <!-- 重要提示 -->
+                    <div class="mt-6 p-4 bg-dark/50 rounded-lg border border-dark-lighter">
+                        <div class="flex items-start space-x-3">
+                            <i class="fa-solid fa-circle-info text-primary mt-0.5"></i>
+                            <p class="text-gray-400 text-sm">
+                                重要提示：主密钥用于加密您的所有笔记，我们不会存储您的主密钥，一旦丢失将无法恢复您的数据。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧功能介绍 -->
+            <div class="lg:w-1/2 w-full">
+                <h2 class="text-2xl font-bold mb-8">为什么选择我们的加密笔记？</h2>
+                
+                <!-- 核心功能 -->
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="feature-card p-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center text-primary">
+                                <i class="fa-solid fa-user-shield"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-1">军工级端对端加密</h3>
+                                <p class="text-gray-400 text-xs">AES-GCM加密，内容仅在浏览器加密/解密，任何人无法读取</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card p-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center text-primary">
+                                <i class="fa-solid fa-key"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-1">一次性恢复码</h3>
+                                <p class="text-gray-400 text-xs">主密钥丢失可通过一次性恢复码重置，每个恢复码仅能使用一次</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card p-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center text-primary">
+                                <i class="fa-solid fa-book"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-1">完整知识库系统</h3>
+                                <p class="text-gray-400 text-xs">自动按分类归纳笔记，飞书同款知识库体验</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card p-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center text-primary">
+                                <i class="fa-solid fa-boxes-stacked"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-1">多空间完全隔离</h3>
+                                <p class="text-gray-400 text-xs">不同主密钥对应完全独立的加密空间，互不干扰</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 更多功能 -->
+                <div class="feature-card p-6 mb-8">
+                    <h3 class="font-semibold mb-4">更多强大功能</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-check text-success text-sm"></i>
+                            <span class="text-gray-300 text-sm">实时同步</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-check text-success text-sm"></i>
+                            <span class="text-gray-300 text-sm">多设备支持</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-check text-success text-sm"></i>
+                            <span class="text-gray-300 text-sm">Markdown支持</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-check text-success text-sm"></i>
+                            <span class="text-gray-300 text-sm">离线访问</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 统计数据 -->
+                <div class="grid grid-cols-3 gap-4 mb-8">
+                    <div class="feature-card p-4 text-center">
+                        <div class="text-2xl font-bold mb-1">10K+</div>
+                        <div class="text-gray-400 text-xs">活跃用户</div>
+                    </div>
+                    <div class="feature-card p-4 text-center">
+                        <div class="text-2xl font-bold mb-1">99.9%</div>
+                        <div class="text-gray-400 text-xs">服务可用性</div>
+                    </div>
+                    <div class="feature-card p-4 text-center">
+                        <div class="text-2xl font-bold mb-1">0</div>
+                        <div class="text-gray-400 text-xs">数据泄露</div>
+                    </div>
+                </div>
+                
+                <!-- 安全认证 -->
+                <div class="feature-card p-6">
+                    <h3 class="font-semibold mb-4 text-center">安全认证与合规</h3>
+                    <div class="flex items-center justify-center space-x-6">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-lock text-success"></i>
+                            <span class="text-gray-300 text-sm">SSL/TLS加密传输</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-shield text-blue-400"></i>
+                            <span class="text-gray-300 text-sm">GDPR合规</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-brain text-purple-400"></i>
+                            <span class="text-gray-300 text-sm">零知识架构</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-shield-halved text-primary"></i>
+                            <span class="text-gray-300 text-sm">端到端加密</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="border-t border-dark-lighter/50 mt-16 py-6 px-6">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between">
+            <div class="flex items-center space-x-3 mb-4 md:mb-0">
+                <div class="w-6 h-6 rounded bg-primary flex items-center justify-center">
+                    <i class="fa-solid fa-lock text-white text-xs"></i>
+                </div>
+                <span class="text-gray-400 text-sm">© 2026 加密笔记. 保留所有权利.</span>
+            </div>
+            
+            <div class="flex items-center space-x-6">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">隐私政策</a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">服务条款</a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">帮助中心</a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">联系我们</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 恢复码重置弹窗 -->
+    <div id="recovery-modal" class="fixed inset-0 modal z-50 hidden flex items-center justify-center p-4">
+        <div class="card p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">使用恢复码重置密钥</h3>
+                <button class="close-modal text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-300 text-sm mb-2">输入恢复码</label>
+                <input 
+                    type="text" 
+                    id="recovery-code"
+                    class="w-full bg-dark border border-dark-lighter rounded-lg px-4 py-3 text-white input-focus uppercase"
+                    placeholder="请输入16位恢复码（如：BD103851656F46A7）"
+                    maxlength="16"
+                >
+                <p class="text-gray-500 text-xs mt-1">恢复码格式：16位大写字母数字</p>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-300 text-sm mb-2">设置新主密钥</label>
+                <input 
+                    type="password" 
+                    id="new-key"
+                    class="w-full bg-dark border border-dark-lighter rounded-lg px-4 py-3 text-white input-focus"
+                    placeholder="请设置新的主密钥（至少8位）"
+                >
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-300 text-sm mb-2">确认新主密钥</label>
+                <input 
+                    type="password" 
+                    id="confirm-key"
+                    class="w-full bg-dark border border-dark-lighter rounded-lg px-4 py-3 text-white input-focus"
+                    placeholder="请再次输入新的主密钥"
+                >
+            </div>
+            
+            <div class="mb-6 p-4 bg-red-500/10 rounded-lg border border-red-500/30">
+                <div class="flex items-start space-x-3">
+                    <i class="fa-solid fa-triangle-exclamation text-red-400 mt-0.5"></i>
+                    <p class="text-gray-300 text-sm">
+                        重要警告：重置主密钥后，所有使用旧密钥加密的数据将无法访问。请确保您确实丢失了旧主密钥。
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button class="flex-1 bg-dark-light hover:bg-dark-lighter text-white py-2 rounded-lg transition-colors close-modal">
+                    取消
+                </button>
+                <button 
+                    id="reset-btn"
+                    class="flex-1 btn-primary py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled
+                >
+                    重置密钥
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载动画 -->
+    <div id="loading" class="fixed inset-0 bg-dark z-60 flex items-center justify-center">
+        <div class="text-center">
+            <div class="w-16 h-16 rounded-full border-4 border-primary/30 border-t-primary animate-spin mx-auto mb-4"></div>
+            <p class="text-white text-lg font-medium">正在加载加密笔记...</p>
+            <p class="text-gray-400 text-sm mt-2">请稍候</p>
+        </div>
+    </div>
+
+    <!-- 核心JS -->
+    <script type="module">
+        import { api } from './js/api.js';
+        import { encryption } from './js/encryption.js';
+        import { utils } from './js/utils.js';
+
+        // DOM元素
+        const DOM = {
+            masterKey: document.getElementById('master-key'),
+            togglePassword: document.getElementById('toggle-password'),
+            strengthFill: document.getElementById('strength-fill'),
+            strengthText: document.getElementById('strength-text'),
+            startBtn: document.getElementById('start-btn'),
+            recoveryBtn: document.getElementById('recovery-btn'),
+            recoveryModal: document.getElementById('recovery-modal'),
+            recoveryCode: document.getElementById('recovery-code'),
+            newKey: document.getElementById('new-key'),
+            confirmKey: document.getElementById('confirm-key'),
+            resetBtn: document.getElementById('reset-btn'),
+            loading: document.getElementById('loading'),
+            closeModals: document.querySelectorAll('.close-modal')
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 检查是否已经登录
+            const token = localStorage.getItem('token');
+            const masterKey = localStorage.getItem('masterKey');
+            const userId = localStorage.getItem('userId');
+            
+            if (token && masterKey && userId) {
+                // 已经登录，直接跳转到首页
+                console.log('检测到已登录状态，正在跳转到首页...');
+                window.location.href = '/index.html';
+                return;
+            }
+            
+            initPasswordToggle();
+            initStrengthDetection();
+            initLogin();
+            initRecoveryReset();
+            initModalClose();
+            initLoader();
+        });
+
+        // 密码显示切换
+        function initPasswordToggle() {
+            DOM.togglePassword.addEventListener('click', () => {
+                const type = DOM.masterKey.getAttribute('type') === 'password' ? 'text' : 'password';
+                DOM.masterKey.setAttribute('type', type);
+                const icon = DOM.togglePassword.querySelector('i');
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+            });
+        }
+
+        // 密钥强度检测
+        function initStrengthDetection() {
+            DOM.masterKey.addEventListener('input', function() {
+                const value = this.value;
+                let strength = 0;
+                let width = '0%';
+                let color = 'bg-red-500';
+                let text = '弱';
+
+                if (value.length >= 8) strength += 1;
+                if (value.length >= 12) strength += 1;
+                if (/[a-z]/.test(value)) strength += 1;
+                if (/[A-Z]/.test(value)) strength += 1;
+                if (/[0-9]/.test(value)) strength += 1;
+                if (/[^a-zA-Z0-9]/.test(value)) strength += 1;
+
+                switch (strength) {
+                    case 0: case 1:
+                        width = '25%'; color = 'bg-red-500'; text = '弱'; break;
+                    case 2: case 3:
+                        width = '50%'; color = 'bg-yellow-500'; text = '中'; break;
+                    case 4:
+                        width = '75%'; color = 'bg-blue-500'; text = '强'; break;
+                    case 5: case 6:
+                        width = '100%'; color = 'bg-emerald-500'; text = '非常强'; break;
+                }
+
+                DOM.strengthFill.className = `strength-fill ${color}`;
+                DOM.strengthFill.style.width = width;
+                DOM.strengthText.textContent = text;
+
+                DOM.startBtn.disabled = value.length < 8;
+            });
+        }
+
+        // 登录逻辑（完全修复跳转问题）
+        function initLogin() {
+            DOM.startBtn.addEventListener('click', async function() {
+                const key = DOM.masterKey.value.trim();
+                if (key.length < 8) return;
+
+                const original = this.innerHTML;
+                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>验证中...';
+                this.disabled = true;
+
+                try {
+                    console.log('正在计算密钥哈希...');
+                    const keyHash = await encryption.getKeyHash(key);
+                    console.log('密钥哈希计算完成，正在登录...');
+                    
+                    const result = await api.auth.login({ keyHash });
+                    console.log('登录成功，响应数据:', result);
+                    
+                    // 保存登录信息
+                    localStorage.setItem('token', result.data.token);
+                    localStorage.setItem('masterKey', key);
+                    localStorage.setItem('userId', result.data.userId);
+                    
+                    // 强制同步写入
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    // 验证保存是否成功
+                    const savedToken = localStorage.getItem('token');
+                    const savedMasterKey = localStorage.getItem('masterKey');
+                    const savedUserId = localStorage.getItem('userId');
+                    
+                    if (!savedToken || !savedMasterKey || !savedUserId) {
+                        throw new Error('数据保存失败，请重试');
+                    }
+
+                    console.log('登录信息保存成功，正在跳转到首页...');
+                    utils.showToast(result.data.isNewUser ? '账号创建成功' : '登录成功', 'success');
+                    
+                    // 立即跳转
+                    window.location.href = '/index.html';
+                } catch (e) {
+                    console.error('登录失败:', e);
+                    utils.showToast(e.message || '验证失败', 'error');
+                    this.innerHTML = original;
+                    this.disabled = false;
+                }
+            });
+
+            DOM.masterKey.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && DOM.masterKey.value.length >= 8) {
+                    DOM.startBtn.click();
+                }
+            });
+
+            DOM.recoveryBtn.addEventListener('click', () => {
+                DOM.recoveryModal.classList.remove('hidden');
+                DOM.recoveryCode.focus();
+            });
+        }
+
+        // 恢复码重置
+        function initRecoveryReset() {
+            DOM.recoveryCode.addEventListener('input', function() {
+                this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                validateReset();
+            });
+
+            DOM.newKey.addEventListener('input', validateReset);
+            DOM.confirmKey.addEventListener('input', validateReset);
+
+            DOM.resetBtn.addEventListener('click', async function() {
+                const code = DOM.recoveryCode.value.trim();
+                const newKey = DOM.newKey.value.trim();
+                const confirm = DOM.confirmKey.value.trim();
+
+                if (!/^[A-Z0-9]{16}$/.test(code)) {
+                    return utils.showToast('恢复码格式不正确', 'error');
+                }
+                if (newKey.length < 8) {
+                    return utils.showToast('新主密钥至少8位', 'error');
+                }
+                if (newKey !== confirm) {
+                    return utils.showToast('两次输入不一致', 'error');
+                }
+
+                const original = this.innerHTML;
+                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>重置中...';
+                this.disabled = true;
+
+                try {
+                    const newKeyHash = await encryption.getKeyHash(newKey);
+                    const result = await api.auth.resetKey({
+                        recoveryCode: code,
+                        newKeyHash
+                    });
+                    
+                    // 保存登录信息
+                    localStorage.setItem('token', result.data.token);
+                    localStorage.setItem('masterKey', newKey);
+                    localStorage.setItem('userId', result.data.userId);
+                    
+                    await new Promise(resolve => setTimeout(resolve, 100));
+
+                    utils.showToast('主密钥重置成功', 'success');
+                    window.location.href = '/index.html';
+                } catch (e) {
+                    utils.showToast(e.message || '重置失败', 'error');
+                    this.innerHTML = original;
+                    this.disabled = false;
+                }
+            });
+
+            function validateReset() {
+                const code = DOM.recoveryCode.value.trim();
+                const newKey = DOM.newKey.value.trim();
+                const confirm = DOM.confirmKey.value.trim();
+
+                const valid = 
+                    /^[A-Z0-9]{16}$/.test(code) &&
+                    newKey.length >= 8 &&
+                    newKey === confirm;
+
+                DOM.resetBtn.disabled = !valid;
+            }
+        }
+
+        // 弹窗关闭
+        function initModalClose() {
+            DOM.closeModals.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    DOM.recoveryModal.classList.add('hidden');
+                });
+            });
+
+            DOM.recoveryModal.addEventListener('click', (e) => {
+                if (e.target === DOM.recoveryModal) {
+                    DOM.recoveryModal.classList.add('hidden');
+                }
+            });
+        }
+
+        // 加载动画
+        function initLoader() {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    DOM.loading.style.opacity = '0';
+                    setTimeout(() => DOM.loading.style.display = 'none', 500);
+                }, 800);
+            });
+        }
+    </script>
+</body>
+</html>

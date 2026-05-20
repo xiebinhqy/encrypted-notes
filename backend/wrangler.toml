@@ -1,6 +1,9 @@
 # ==============================================
 # 加密笔记后端 wrangler 完整配置
 # 三环境完全隔离：生产环境(线上) + 测试环境(线上) + 本地环境(本地)
+# 版本：v2.1.1 - 本地单端口8787修复版
+# 兼容：Wrangler 4.92.0
+# 纯原生Cloudflare Worker，无任何框架依赖
 # ==============================================
 name = "encrypted-notes-backend"
 main = "src/index.js"
@@ -8,22 +11,29 @@ compatibility_date = "2024-04-01"
 compatibility_flags = ["nodejs_compat"]
 
 # ==============================================
-# 【新增】静态资源服务配置（关键修复！）
+# 本地开发配置（核心修改：固定端口8787）
+# ==============================================
+[dev]
+port = 8787
+local_protocol = "http"
+inspect = true
+
+# ==============================================
+# 静态资源服务配置（前端由后端统一提供，彻底解决跨域）
 # ==============================================
 [assets]
 directory = "../frontend/public"
 binding = "ASSETS"
 
 # ==============================================
-# 【全局变量配置】所有环境通用的基础变量
+# 全局变量配置
 # ==============================================
 [vars]
 ALLOW_PUBLIC_REGISTRATION = "true"
 PBKDF2_ITERATIONS = "100000"
 
 # ==============================================
-# 【env.preview 本地环境配置】本地开发专用
-# 绑定：本地D1数据库 + 本地KV空间
+# 本地环境配置
 # ==============================================
 [env.preview]
 name = "encrypted-notes-preview-backend"
@@ -35,7 +45,6 @@ JWT_SECRET = "df4bbaee49566ddb81ed8863564afef04b2fc9ab4c5e18adce1e02445c6bce55f7
 PBKDF2_ITERATIONS = "100000"
 TURNSTILE_SECRET_KEY = "0x4AAAAAAADG-mG-YfUq8IAKOff7V3YmJAY"
 
-# 本地环境D1数据库绑定（优先用staging的线上库做本地开发）
 [[env.preview.d1_databases]]
 binding = "DB"
 database_name = "staging-notes-db"
@@ -46,7 +55,6 @@ binding = "BACKUP_DB"
 database_name = "staging-notes-backup"
 database_id = "461970e4-1ff6-4ab9-804e-6a9d5b07f958"
 
-# 本地环境KV命名空间绑定
 [[env.preview.kv_namespaces]]
 binding = "LOGIN_RATE_LIMIT"
 id = "752f93008c2e4fdeb17fa8456f6fdad8"
@@ -60,8 +68,7 @@ binding = "NOTES_BACKUP"
 id = "c4cf44f2a5d547f68df71ab772995635"
 
 # ==============================================
-# 【env.staging 测试环境配置】线上预发布验证专用
-# 绑定：测试主数据库 + 测试备用数据库 + 测试KV空间
+# 测试环境配置
 # ==============================================
 [env.staging]
 name = "encrypted-notes-staging-backend"
@@ -73,33 +80,30 @@ JWT_SECRET = "df4bbaee49566ddb81ed8863564afef04b2fc9ab4c5e18adce1e02445c6bce55f7
 PBKDF2_ITERATIONS = "100000"
 TURNSTILE_SECRET_KEY = "0x4AAAAAAADG-mG-YfUq8IAKOff7V3YmJAY"
 
-# 测试环境D1数据库绑定
 [[env.staging.d1_databases]]
-binding = "staging_notes_db"
+binding = "DB"
 database_name = "staging-notes-db"
 database_id = "815c893f-b1b3-4f05-b737-c544becdaa0f"
 
 [[env.staging.d1_databases]]
-binding = "staging_notes_backup"
+binding = "BACKUP_DB"
 database_name = "staging-notes-backup"
 database_id = "461970e4-1ff6-4ab9-804e-6a9d5b07f958"
 
-# 测试环境KV命名空间绑定
 [[env.staging.kv_namespaces]]
-binding = "STAGING_LOGIN_RATE_LIMIT"
+binding = "LOGIN_RATE_LIMIT"
 id = "752f93008c2e4fdeb17fa8456f6fdad8"
 
 [[env.staging.kv_namespaces]]
-binding = "STAGING_NOTE_HISTORY"
+binding = "NOTE_HISTORY"
 id = "db4e2eded4084eafa2b7b59e1ca39fe1"
 
 [[env.staging.kv_namespaces]]
-binding = "STAGING_NOTES_BACKUP"
+binding = "NOTES_BACKUP"
 id = "c4cf44f2a5d547f68df71ab772995635"
 
 # ==============================================
-# 【env.production 生产环境配置】线上正式服务专用
-# 绑定：生产主数据库 + 生产备用数据库 + 生产KV空间
+# 生产环境配置
 # ==============================================
 [env.production]
 name = "encrypted-notes-production-backend"
@@ -107,37 +111,39 @@ name = "encrypted-notes-production-backend"
 ENVIRONMENT = "production"
 ADMIN_EMAIL = "deattorxb@gmail.com"
 ALLOW_PUBLIC_REGISTRATION = "true"
-# 【必须替换】这里替换成你线上生产环境的JWT_SECRET
 JWT_SECRET = "df4bbaee49566ddb81ed8863564afef04b2fc9ab4c5e18adce1e02445c6bce55f7f05ef31e62c89ee55ad37f18f9e0f2eb4e71e8b2a02efc68614eb33a939c78"
 PBKDF2_ITERATIONS = "100000"
-# 【必须替换】这里替换成你线上生产环境的TURNSTILE_SECRET_KEY
 TURNSTILE_SECRET_KEY = "0x4AAAAAAADG-mG-YfUq8IAKOff7V3YmJAY"
 
-# 生产环境D1数据库绑定
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "notes-db"
-# 【必须替换】这里替换成你线上生产库notes-db的Database ID
 database_id = "3e67e82c-372c-43a9-81ee-69acb466befb"
 
 [[env.production.d1_databases]]
 binding = "BACKUP_DB"
 database_name = "notes-backup-db"
-# 【必须替换】这里替换成你线上生产备份库的Database ID
 database_id = "f0843e11-0b5d-488d-8307-674bf3bcbbdb"
 
-# 生产环境KV命名空间绑定
 [[env.production.kv_namespaces]]
 binding = "LOGIN_RATE_LIMIT"
-# 【必须替换】这里替换成你线上生产环境LOGIN_RATE_LIMIT的KV ID
 id = "1d4a117d0f4948288289437f01956f83"
 
 [[env.production.kv_namespaces]]
 binding = "NOTE_HISTORY"
-# 【必须替换】这里替换成你线上生产环境NOTE_HISTORY的KV ID
 id = "d5fae0ca8b0146389e8c4ee8ae4dfab2"
 
 [[env.production.kv_namespaces]]
 binding = "NOTES_BACKUP"
-# 【必须替换】这里替换成你线上生产环境NOTES_BACKUP的KV ID
 id = "cfd23ee25c2b4769a8331def0296f1d9"
+
+# ==============================================
+# 定时任务配置（高可用核心）
+# ==============================================
+[triggers]
+crons = [
+  # 每5分钟同步KV临时备份到备用D1
+  { cron = "*/5 * * * *", binding = "SYNC_BACKUP" },
+  # 每天凌晨3点全量备份主数据库到KV
+  { cron = "0 3 * * *", binding = "FULL_BACKUP" }
+]

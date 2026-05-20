@@ -1,49 +1,20 @@
 # ==============================================
 # 加密笔记前端部署配置
-# 适配Cloudflare Worker wrangler 4.x 正式版
+# 版本：v2.1.0
+# 兼容：Wrangler 4.92.0
 # ==============================================
-
 name = "encrypted-notes-frontend"
-main = "src/index.js"
 compatibility_date = "2024-04-01"
-compatibility_flags = ["nodejs_compat"]
 
-# ==============================================
-# 【静态资源托管配置（wrangler 4.x 标准格式）】
-# ==============================================
 [assets]
-# 静态资源目录，对应你的public文件夹
-directory = "./public"
-# SPA路由自动处理
-html_handling = "auto-trailing-slash"
+directory = "public"
+binding = "ASSETS"
 
-# wrangler 4.x 正确的缓存配置格式
-[[assets.rules]]
-pattern = "*.*"
-browser_ttl = 3600
-edge_ttl = 86400
-
-# ==============================================
-# 【本地开发环境】Preview
-# ==============================================
 [env.preview]
-name = "encrypted-notes-preview"
-[env.preview.vars]
-API_URL = "http://127.0.0.1:8787"
-ENVIRONMENT = "preview"
+name = "encrypted-notes-preview-frontend"
 
-# ==============================================
-# 【测试环境】Staging
-# ==============================================
 [env.staging]
-name = "encrypted-notes-staging"
-[env.staging.vars]
-API_URL = "https://notes-api-staging.dea.workers.dev/"
-ENVIRONMENT = "staging"
+name = "encrypted-notes-staging-frontend"
 
-# ==============================================
-# 【生产环境】Production
-# ==============================================
-[vars]
-API_URL = "https://api.dee.us.kg"
-ENVIRONMENT = "production"
+[env.production]
+name = "encrypted-notes-production-frontend"

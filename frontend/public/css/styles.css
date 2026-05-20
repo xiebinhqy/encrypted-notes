@@ -1,0 +1,231 @@
+/* ==============================================
+   加密笔记全局样式
+   版本：v2.1.0
+   与主页面100%风格统一
+============================================== */
+
+/* 基础样式 */
+body {
+    background-color: #0f172a;
+    color: #e2e8f0;
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* 渐变背景 */
+.gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); }
+
+/* 玻璃态效果 */
+.glass-effect {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 动画效果 */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+.float-animation { animation: float 6s ease-in-out infinite; }
+
+/* 发光效果 */
+.glow-effect { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+
+/* 输入框聚焦效果 */
+.input-focus:focus { box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3); }
+
+/* 弹窗动画 */
+.modal-enter {
+    animation: modalFadeIn 0.3s ease forwards;
+    opacity: 0;
+    transform: translateY(-20px);
+}
+@keyframes modalFadeIn {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 通知红点 */
+.notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+}
+
+/* 加载动画 */
+#loading-overlay {
+    transition: opacity 0.5s ease;
+}
+
+/* 侧边栏样式 */
+.sidebar::-webkit-scrollbar { display: none; }
+.sidebar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* 数字增长动画 */
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-count {
+    animation: countUp 0.5s ease-out forwards;
+}
+
+/* 通用间距/组件样式 */
+.compact-gap { gap: 0.75rem; }
+.compact-card { padding: 1.25rem; }
+
+/* 新建笔记按钮 - 红色渐变 */
+.new-note-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: none;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+.new-note-btn:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+    transform: translateY(-1px);
+}
+
+/* 导航选项卡 */
+.nav-tab {
+    transition: all 0.2s ease;
+    font-size: 1rem;
+}
+.nav-tab:hover {
+    transform: scale(1.05);
+    font-weight: 600;
+}
+
+/* 对话框样式 */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+.dialog-content {
+    background-color: #1e293b;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 1200px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    border: 1px solid #334155;
+}
+.dialog-content.small {
+    max-width: 600px;
+}
+.dialog-content.medium {
+    max-width: 900px;
+}
+
+/* 新建笔记下拉菜单 */
+.new-note-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    z-index: 50;
+    display: none;
+    min-width: 180px;
+}
+.new-note-dropdown.show { display: block; }
+
+/* 笔记编辑器/预览 */
+.note-editor { max-height: 80vh; overflow-y: auto; }
+.markdown-preview {
+    background-color: #0f172a;
+    border-radius: 8px;
+    padding: 16px;
+    min-height: 200px;
+    border: 1px solid #334155;
+}
+
+/* 页面切换动画 */
+.page-content {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.page-content.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 文字内容区域 */
+.text-content { line-height: 1.6; }
+.text-content p { margin-bottom: 1rem; }
+.text-content ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+/* 系统页面样式 */
+.system-icon {
+    font-size: 4rem;
+    color: #6366f1;
+    animation: spin 20s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 实时日志样式 */
+.log-entry {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #334155;
+    font-family: monospace;
+    font-size: 0.75rem;
+}
+.log-entry:last-child {
+    border-bottom: none;
+}
+.log-time {
+    color: #64748b;
+    margin-right: 0.5rem;
+}
+.log-info { color: #60a5fa; }
+.log-success { color: #34d399; }
+.log-warning { color: #fbbf24; }
+.log-error { color: #f87171; }
+
+/* 滚动条样式 */
+.scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
+}
+.scrollbar-thin::-webkit-scrollbar { width: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #334155;
+    border-radius: 2px;
+}
+
+/* 卡片过渡效果 */
+.card-transition {
+    transition: all 0.3s ease-in-out;
+}
+.card-transition:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+}

@@ -1,0 +1,26 @@
+{
+    "name": "encrypted-notes-backend",
+    "version": "2.1.0",
+    "description": "加密笔记后端 - 纯原生Cloudflare Worker",
+    "main": "src/index.js",
+    "scripts": {
+      "dev": "wrangler dev --env preview",
+      "deploy:preview": "wrangler deploy --env preview",
+      "deploy:staging": "wrangler deploy --env staging",
+      "deploy:production": "wrangler deploy --env production",
+      "init-db": "node scripts/init-db.js",
+      "backup-data": "node scripts/backup-data.js"
+    },
+    "devDependencies": {
+      "wrangler": "^4.92.0"
+    },
+    "keywords": [
+      "cloudflare",
+      "worker",
+      "d1",
+      "kv",
+      "encrypted-notes"
+    ],
+    "author": "Your Name",
+    "license": "MIT"
+  }
