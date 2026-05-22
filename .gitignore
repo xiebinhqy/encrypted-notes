@@ -1,9 +1,5 @@
 # 排除私有功能目录（防止泄露到公共仓库）
-private/
-bf/
-encrypted-notes-local/
-test/
-yb-en/
+
 
 # 开发环境文件
 node_modules/
