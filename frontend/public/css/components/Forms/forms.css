@@ -1,0 +1,1392 @@
+/**
+ * 表单组件样式
+ * 统一所有表单元素（输入框、文本域、选择框、复选框、单选框等）的样式和交互
+ */
+
+/* ===== 表单通用样式 ===== */
+.form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-col {
+    flex: 1;
+    min-width: 0;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.form-label.required::after {
+    content: '*';
+    color: var(--danger-color);
+    margin-left: 0.25rem;
+}
+
+.form-hint {
+    display: block;
+    margin-top: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.form-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--danger-color);
+    line-height: 1.4;
+}
+
+.form-error i {
+    font-size: 0.875rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+.form-success {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--success-color);
+    line-height: 1.4;
+}
+
+.form-success i {
+    font-size: 0.875rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+/* 表单字段尺寸 */
+.form-control-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    border-radius: 0.375rem;
+    height: 2rem;
+}
+
+.form-control-md {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+    height: 2.5rem;
+}
+
+.form-control-lg {
+    padding: 0.625rem 1rem;
+    font-size: 1rem;
+    border-radius: 0.625rem;
+    height: 3rem;
+}
+
+/* 表单状态 */
+.form-control:disabled,
+.form-control[readonly] {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.form-control:disabled::placeholder,
+.form-control[readonly]::placeholder {
+    color: var(--text-disabled);
+}
+
+/* ===== 输入框样式 ===== */
+.input-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+/* 输入框变体 */
+.input-default .input-field {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+}
+
+.input-outline .input-field {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+}
+
+.input-filled .input-field {
+    background-color: var(--bg-tertiary);
+    border: 1px solid transparent;
+}
+
+.input-filled .input-field:focus {
+    background-color: var(--bg-primary);
+    border-color: var(--primary-color);
+}
+
+.input-flushed .input-field {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.input-flushed .input-field:focus {
+    border-bottom-color: var(--primary-color);
+    box-shadow: 0 1px 0 0 var(--primary-color);
+}
+
+/* 输入框包装 */
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.input-field {
+    width: 100%;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.input-field::placeholder {
+    color: var(--text-tertiary);
+    opacity: 0.8;
+}
+
+/* 输入框前缀/后缀 */
+.input-prefix,
+.input-suffix {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.75rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    height: 100%;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.input-prefix {
+    border-right: none;
+    border-radius: 0.5rem 0 0 0.5rem;
+}
+
+.input-suffix {
+    border-left: none;
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.input-wrapper .input-field:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-wrapper .input-field:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* 清空按钮 */
+.input-clear {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+    z-index: 5;
+}
+
+.input-clear:hover {
+    color: var(--text-secondary);
+    opacity: 1;
+    background-color: var(--bg-hover);
+}
+
+/* 字数统计 */
+.input-count {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.375rem;
+}
+
+.input-count.over-limit {
+    color: var(--danger-color);
+}
+
+.input-count .separator {
+    opacity: 0.6;
+}
+
+/* 输入框状态 */
+.input-success .input-field {
+    border-color: var(--success-color);
+}
+
+.input-success .input-field:focus {
+    border-color: var(--success-color);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.input-warning .input-field {
+    border-color: var(--warning-color);
+}
+
+.input-warning .input-field:focus {
+    border-color: var(--warning-color);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.input-error .input-field {
+    border-color: var(--danger-color);
+}
+
+.input-error .input-field:focus {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* 输入框聚焦状态 */
+.input-focused .input-field {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* ===== 文本域样式 ===== */
+.textarea-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+/* 文本域变体 */
+.textarea-default .textarea-field {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+}
+
+.textarea-outline .textarea-field {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+}
+
+.textarea-filled .textarea-field {
+    background-color: var(--bg-tertiary);
+    border: 1px solid transparent;
+}
+
+.textarea-filled .textarea-field:focus {
+    background-color: var(--bg-primary);
+    border-color: var(--primary-color);
+}
+
+.textarea-flushed .textarea-field {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.textarea-flushed .textarea-field:focus {
+    border-bottom-color: var(--primary-color);
+    box-shadow: 0 1px 0 0 var(--primary-color);
+}
+
+/* 文本域包装 */
+.textarea-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.textarea-field {
+    width: 100%;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 6rem;
+}
+
+.textarea-field:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.textarea-field::placeholder {
+    color: var(--text-tertiary);
+    opacity: 0.8;
+}
+
+/* 文本域尺寸 */
+.textarea-sm .textarea-field {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    border-radius: 0.375rem;
+    min-height: 5rem;
+}
+
+.textarea-md .textarea-field {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+    min-height: 6rem;
+}
+
+.textarea-lg .textarea-field {
+    padding: 1rem;
+    font-size: 1rem;
+    border-radius: 0.625rem;
+    min-height: 8rem;
+}
+
+/* 文本域字数统计 */
+.textarea-count {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.375rem;
+    flex-wrap: wrap;
+}
+
+.textarea-count.over-limit {
+    color: var(--danger-color);
+}
+
+.textarea-count .line-count {
+    color: var(--text-tertiary);
+    font-size: 0.6875rem;
+    background-color: var(--bg-tertiary);
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.75rem;
+}
+
+/* 文本域状态 */
+.textarea-success .textarea-field {
+    border-color: var(--success-color);
+}
+
+.textarea-success .textarea-field:focus {
+    border-color: var(--success-color);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.textarea-warning .textarea-field {
+    border-color: var(--warning-color);
+}
+
+.textarea-warning .textarea-field:focus {
+    border-color: var(--warning-color);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.textarea-error .textarea-field {
+    border-color: var(--danger-color);
+}
+
+.textarea-error .textarea-field:focus {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* 文本域聚焦状态 */
+.textarea-focused .textarea-field {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* 禁用自动调整大小 */
+.textarea-field.no-resize {
+    resize: none;
+}
+
+/* ===== 选择框样式 ===== */
+.select-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+/* 选择框触发器 */
+.select-trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    min-height: 2.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    outline: none;
+}
+
+.select-trigger:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.select-trigger:hover:not(.select-disabled) {
+    border-color: var(--border-hover);
+}
+
+/* 已选内容 */
+.selected-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.placeholder {
+    color: var(--text-tertiary);
+    opacity: 0.8;
+}
+
+.selected-text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+}
+
+.selected-text i {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.selected-description {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin-left: 0.5rem;
+}
+
+/* 多选标签 */
+.selected-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.tag-text {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tag-remove {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0.125rem;
+    border-radius: 0.125rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.tag-remove:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* 选择箭头 */
+.select-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.select-open .select-arrow {
+    transform: rotate(180deg);
+}
+
+/* 清空按钮 */
+.select-clear {
+    position: absolute;
+    right: 2.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+    z-index: 5;
+}
+
+.select-clear:hover {
+    color: var(--text-secondary);
+    opacity: 1;
+    background-color: var(--bg-hover);
+}
+
+/* 下拉菜单 */
+.select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-top: 0.25rem;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    animation: fadeIn 0.2s ease;
+}
+
+.select-open .select-dropdown {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 搜索框 */
+.select-search {
+    position: relative;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+}
+
+/* 选项列表 */
+.select-options {
+    padding: 0.5rem 0;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+/* 选项组 */
+.select-group {
+    margin-bottom: 0.5rem;
+}
+
+.group-label {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: var(--bg-tertiary);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.group-options {
+    padding-left: 0.5rem;
+}
+
+/* 选项项 */
+.select-option {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    gap: 0.5rem;
+}
+
+.select-option:hover:not(.disabled) {
+    background-color: var(--bg-hover);
+}
+
+.select-option.selected:not(.disabled) {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.select-option.disabled {
+    color: var(--text-disabled);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.select-option.keyboard-nav {
+    background-color: var(--bg-hover);
+    box-shadow: 0 0 0 1px var(--primary-color) inset;
+}
+
+.option-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    color: transparent;
+    flex-shrink: 0;
+}
+
+.select-option.selected .option-checkbox {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.option-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.option-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.option-text {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+.option-description {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin-top: 0.125rem;
+}
+
+.option-selected-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+/* 无结果 */
+.no-results {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2rem 1rem;
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.no-results i {
+    font-size: 1rem;
+}
+
+/* 创建选项 */
+.select-create {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 0.5rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+}
+
+.select-create:hover {
+    background-color: var(--bg-hover);
+}
+
+.create-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    color: var(--success-color);
+    flex-shrink: 0;
+}
+
+.create-content {
+    flex: 1;
+}
+
+.create-text {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+/* 加载状态 */
+.select-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    color: var(--text-tertiary);
+    gap: 0.75rem;
+}
+
+.loading-spinner {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 0.875rem;
+}
+
+/* 选择框状态 */
+.select-success .select-trigger {
+    border-color: var(--success-color);
+}
+
+.select-success .select-trigger:focus {
+    border-color: var(--success-color);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.select-warning .select-trigger {
+    border-color: var(--warning-color);
+}
+
+.select-warning .select-trigger:focus {
+    border-color: var(--warning-color);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.select-error .select-trigger {
+    border-color: var(--danger-color);
+}
+
+.select-error .select-trigger:focus {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* 选择框聚焦状态 */
+.select-focused .select-trigger {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* 禁用状态 */
+.select-disabled .select-trigger {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* ===== 复选框样式 ===== */
+.checkbox-container {
+    position: relative;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+/* 复选框包装 */
+.checkbox-wrapper {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    user-select: none;
+    gap: 0.75rem;
+    position: relative;
+}
+
+.checkbox-wrapper:hover:not(.checkbox-disabled) .checkbox-control {
+    border-color: var(--primary-color);
+    background-color: var(--primary-light);
+}
+
+/* 隐藏的原始复选框 */
+.checkbox-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* 自定义控制元素 */
+.checkbox-control {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid var(--border-color);
+    border-radius: 0.375rem;
+    background-color: var(--bg-primary);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+.checkbox-control i {
+    font-size: 0.75rem;
+    color: white;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s ease;
+}
+
+/* 选中状态 */
+.checkbox-checked .checkbox-control {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.checkbox-checked .checkbox-control i {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* 不定状态 */
+.checkbox-indeterminate .checkbox-control {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.checkbox-indeterminate .checkbox-control i {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* 复选框内容 */
+.checkbox-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.checkbox-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.checkbox-description {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* 复选框变体 */
+/* 开关类型 */
+.checkbox-switch .checkbox-control {
+    width: 2.5rem;
+    height: 1.5rem;
+    border-radius: 0.75rem;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    padding: 0.125rem;
+    overflow: hidden;
+}
+
+.switch-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0.75rem;
+    background-color: currentColor;
+    opacity: 0.1;
+    transition: all 0.2s ease;
+}
+
+.switch-thumb {
+    position: absolute;
+    left: 0.125rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background-color: var(--bg-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.switch-thumb i {
+    font-size: 0.625rem;
+    color: var(--text-secondary);
+    opacity: 1;
+    transform: scale(1);
+}
+
+.checkbox-switch.checkbox-checked .switch-thumb {
+    left: calc(100% - 1.25rem - 0.125rem);
+    background-color: var(--primary-color);
+}
+
+.checkbox-switch.checkbox-checked .switch-thumb i {
+    color: white;
+}
+
+.checkbox-switch.checkbox-checked .checkbox-control {
+    background-color: var(--primary-light);
+    border-color: var(--primary-color);
+}
+
+/* 切换类型 */
+.checkbox-toggle .checkbox-control {
+    width: 3rem;
+    height: 1.5rem;
+    border-radius: 0.75rem;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    padding: 0.125rem;
+    overflow: hidden;
+}
+
+.toggle-track {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 0.75rem;
+    background-color: var(--bg-tertiary);
+    transition: all 0.2s ease;
+}
+
+.toggle-thumb {
+    position: absolute;
+    left: 0.125rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background-color: var(--bg-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-thumb i {
+    font-size: 0.625rem;
+    color: var(--text-secondary);
+    opacity: 1;
+    transform: scale(1);
+}
+
+.checkbox-toggle.checkbox-checked .toggle-track {
+    background-color: var(--primary-light);
+}
+
+.checkbox-toggle.checkbox-checked .toggle-thumb {
+    left: calc(100% - 1.25rem - 0.125rem);
+    background-color: var(--primary-color);
+}
+
+.checkbox-toggle.checkbox-checked .toggle-thumb i {
+    color: white;
+}
+
+/* 复选框状态 */
+.checkbox-success .checkbox-control {
+    border-color: var(--success-color);
+}
+
+.checkbox-success.checkbox-checked .checkbox-control {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.checkbox-warning .checkbox-control {
+    border-color: var(--warning-color);
+}
+
+.checkbox-warning.checkbox-checked .checkbox-control {
+    background-color: var(--warning-color);
+    border-color: var(--warning-color);
+}
+
+.checkbox-error .checkbox-control {
+    border-color: var(--danger-color);
+}
+
+.checkbox-error.checkbox-checked .checkbox-control {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+/* 复选框聚焦状态 */
+.checkbox-focused .checkbox-control {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* 禁用状态 */
+.checkbox-disabled .checkbox-wrapper {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.checkbox-disabled .checkbox-control {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+}
+
+.checkbox-disabled.checkbox-checked .checkbox-control {
+    background-color: var(--text-tertiary);
+    border-color: var(--text-tertiary);
+}
+
+.checkbox-disabled .checkbox-label {
+    color: var(--text-disabled);
+}
+
+.checkbox-disabled .checkbox-description {
+    color: var(--text-disabled);
+}
+
+/* 复选框组 */
+.checkbox-group-container {
+    margin-bottom: 1.5rem;
+}
+
+.checkbox-group-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.checkbox-group-description {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+/* 复选框组布局 */
+.checkbox-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.checkbox-group-horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.checkbox-group-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.checkbox-group-columns-1 {
+    grid-template-columns: 1fr;
+}
+
+.checkbox-group-columns-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.checkbox-group-columns-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.checkbox-group-columns-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .form-col {
+        width: 100%;
+    }
+    
+    .checkbox-group-horizontal {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .checkbox-group-columns-2,
+    .checkbox-group-columns-3,
+    .checkbox-group-columns-4 {
+        grid-template-columns: 1fr;
+    }
+    
+    .selected-tag {
+        max-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .input-wrapper {
+        flex-direction: column;
+    }
+    
+    .input-prefix,
+    .input-suffix {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .input-prefix {
+        order: -1;
+    }
+    
+    .select-dropdown {
+        position: fixed;
+        top: 50% !important;
+        left: 1rem !important;
+        right: 1rem !important;
+        transform: translateY(-50%);
+        max-height: 70vh;
+    }
+}
+
+/* 深色主题适配 */
+.dark .input-field,
+.dark .textarea-field,
+.dark .select-trigger,
+.dark .checkbox-control {
+    background-color: rgba(30, 41, 59, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .input-filled .input-field,
+.dark .textarea-filled .textarea-field {
+    background-color: rgba(30, 41, 59, 0.5);
+}
+
+.dark .select-dropdown {
+    background-color: rgb(15, 23, 42);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.dark .checkbox-switch .checkbox-control,
+.dark .checkbox-toggle .checkbox-control {
+    background-color: rgba(30, 41, 59, 0.5);
+}
+
+/* 浅色主题适配 */
+.light .input-field,
+.light .textarea-field,
+.light .select-trigger,
+.light .checkbox-control {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.light .input-filled .input-field,
+.light .textarea-filled .textarea-field {
+    background-color: rgba(241, 245, 249, 0.8);
+}
+
+.light .select-dropdown {
+    background-color: white;
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.light .checkbox-switch .checkbox-control,
+.light .checkbox-toggle .checkbox-control {
+    background-color: rgba(241, 245, 249, 0.8);
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+    .input-field,
+    .textarea-field,
+    .select-trigger,
+    .checkbox-control {
+        border-width: 2px;
+    }
+    
+    .checkbox-control {
+        border-width: 2px;
+    }
+    
+    .form-error,
+    .form-success {
+        font-weight: bold;
+    }
+}
+
+/* 减少动画 */
+@media (prefers-reduced-motion: reduce) {
+    .input-container,
+    .textarea-container,
+    .select-container,
+    .checkbox-container,
+    .input-field,
+    .textarea-field,
+    .select-trigger,
+    .checkbox-control,
+    .select-dropdown,
+    .select-option,
+    .selected-tag,
+    .input-clear,
+    .select-clear,
+    .tag-remove {
+        transition: none;
+    }
+    
+    .loading-spinner {
+        animation: none;
+    }
+    
+    .select-dropdown {
+        animation: none;
+    }
+}

@@ -1,88 +1,82 @@
 /**
- * 日志工具类
- * 版本：v1.0.0
- * 统一处理日志输出
+ * 结构化日志工具
+ * @version v2.1.1
+ * @date 2026-05-20
  */
 
-/**
- * 日志级别枚举
- */
 const LOG_LEVELS = {
   DEBUG: 0,
   INFO: 1,
-  WARNING: 2,
+  WARN: 2,
   ERROR: 3
 };
 
-// 当前日志级别
-const CURRENT_LEVEL = LOG_LEVELS.INFO;
+const currentLevel = LOG_LEVELS[globalThis.env?.LOG_LEVEL || 'INFO'] || LOG_LEVELS.INFO;
 
 /**
- * 格式化日志消息
- * @param {string} level 日志级别
- * @param {string} message 日志消息
- * @param {object} data 附加数据
- * @returns {string} 格式化后的日志字符串
+ * 日志工具类
  */
-function formatLog(level, message, data = {}) {
-  const logEntry = {
-    timestamp: new Date().toISOString(),
-    level: level.toLowerCase(),
-    message,
-    data
-  };
+class Logger {
+  /**
+   * 格式化日志消息
+   * @param {string} level - 日志级别
+   * @param {string} message - 日志消息
+   * @param {Object} data - 附加数据
+   * @returns {Object} 格式化后的日志对象
+   */
+  #format(level, message, data = {}) {
+    return {
+      timestamp: new Date().toISOString(),
+      level,
+      message,
+      data,
+      environment: globalThis.env?.ENVIRONMENT || 'unknown'
+    };
+  }
 
-  return JSON.stringify(logEntry);
-}
+  /**
+   * 输出调试日志
+   * @param {string} message - 日志消息
+   * @param {Object} data - 附加数据
+   */
+  debug(message, data = {}) {
+    if (currentLevel <= LOG_LEVELS.DEBUG) {
+      console.debug(JSON.stringify(this.#format('DEBUG', message, data)));
+    }
+  }
 
-/**
- * 调试日志
- * @param {string} message 日志消息
- * @param {object} data 附加数据
- */
-export function debug(message, data = {}) {
-  if (CURRENT_LEVEL <= LOG_LEVELS.DEBUG) {
-    console.debug(formatLog('DEBUG', message, data));
+  /**
+   * 输出信息日志
+   * @param {string} message - 日志消息
+   * @param {Object} data - 附加数据
+   */
+  info(message, data = {}) {
+    if (currentLevel <= LOG_LEVELS.INFO) {
+      console.info(JSON.stringify(this.#format('INFO', message, data)));
+    }
+  }
+
+  /**
+   * 输出警告日志
+   * @param {string} message - 日志消息
+   * @param {Object} data - 附加数据
+   */
+  warn(message, data = {}) {
+    if (currentLevel <= LOG_LEVELS.WARN) {
+      console.warn(JSON.stringify(this.#format('WARN', message, data)));
+    }
+  }
+
+  /**
+   * 输出错误日志
+   * @param {string} message - 日志消息
+   * @param {Object} data - 附加数据
+   */
+  error(message, data = {}) {
+    if (currentLevel <= LOG_LEVELS.ERROR) {
+      console.error(JSON.stringify(this.#format('ERROR', message, data)));
+    }
   }
 }
 
-/**
- * 信息日志
- * @param {string} message 日志消息
- * @param {object} data 附加数据
- */
-export function info(message, data = {}) {
-  if (CURRENT_LEVEL <= LOG_LEVELS.INFO) {
-    console.info(formatLog('INFO', message, data));
-  }
-}
-
-/**
- * 警告日志
- * @param {string} message 日志消息
- * @param {object} data 附加数据
- */
-export function warning(message, data = {}) {
-  if (CURRENT_LEVEL <= LOG_LEVELS.WARNING) {
-    console.warn(formatLog('WARNING', message, data));
-  }
-}
-
-/**
- * 错误日志
- * @param {string} message 日志消息
- * @param {object} data 附加数据
- */
-export function error(message, data = {}) {
-  if (CURRENT_LEVEL <= LOG_LEVELS.ERROR) {
-    console.error(formatLog('ERROR', message, data));
-  }
-}
-
-// 导出logger对象
-export const logger = {
-  debug,
-  info,
-  warning,
-  error
-};
+export default new Logger();

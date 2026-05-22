@@ -1,0 +1,20 @@
+# ==============================================
+# 加密笔记前端部署配置
+# 版本：v2.1.0
+# 兼容：Wrangler 4.92.0
+# ==============================================
+name = "encrypted-notes-frontend"
+compatibility_date = "2024-04-01"
+
+[assets]
+directory = "public"
+binding = "ASSETS"
+
+[env.preview]
+name = "encrypted-notes-preview-frontend"
+
+[env.staging]
+name = "encrypted-notes-staging-frontend"
+
+[env.production]
+name = "encrypted-notes-production-frontend"

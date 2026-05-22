@@ -1,0 +1,363 @@
+/**
+ * CSS设计变量系统
+ * 作用：定义整个应用的颜色、间距、字体等设计Token
+ * 注意：修改变量值可以快速切换应用主题
+ */
+
+ :root {
+    /* ========== 颜色系统 ========== */
+    
+    /* 主色调 - 靛蓝色 */
+    --primary-color: #6366f1;
+    --primary-hover: #4f46e5;
+    --primary-active: #4338ca;
+    --primary-light: rgba(99, 102, 241, 0.1);
+    --primary-dark: #3730a3;
+    
+    /* 功能色 - 成功、警告、错误、信息 */
+    --success-color: #10b981;
+    --success-light: rgba(16, 185, 129, 0.1);
+    --success-dark: #047857;
+    
+    --warning-color: #f59e0b;
+    --warning-light: rgba(245, 158, 11, 0.1);
+    --warning-dark: #d97706;
+    
+    --danger-color: #ef4444;
+    --danger-light: rgba(239, 68, 68, 0.1);
+    --danger-dark: #dc2626;
+    
+    --info-color: #3b82f6;
+    --info-light: rgba(59, 130, 246, 0.1);
+    --info-dark: #1d4ed8;
+    
+    /* 文本色 - 四个层级 */
+    --text-primary: #1f2937;      /* 主要文字 */
+    --text-secondary: #6b7280;    /* 次要文字 */
+    --text-tertiary: #9ca3af;     /* 辅助文字 */
+    --text-disabled: #d1d5db;     /* 禁用状态文字 */
+    --text-on-primary: #ffffff;   /* 主色上的文字 */
+    
+    /* 背景色 - 四个层级 */
+    --bg-primary: #ffffff;        /* 主要背景 */
+    --bg-secondary: #f9fafb;      /* 次要背景 */
+    --bg-tertiary: #f3f4f6;       /* 三级背景 */
+    --bg-hover: rgba(0, 0, 0, 0.05);  /* 悬停背景 */
+    --bg-active: rgba(0, 0, 0, 0.1);  /* 激活背景 */
+    
+    /* 边框色 - 三个层级 */
+    --border-color: #e5e7eb;      /* 默认边框 */
+    --border-hover: #d1d5db;      /* 悬停边框 */
+    --border-active: #9ca3af;     /* 激活边框 */
+    
+    /* 覆盖层颜色 */
+    --overlay-bg: rgba(0, 0, 0, 0.5);    /* 模态框背景 */
+    --backdrop-bg: rgba(0, 0, 0, 0.1);   /* 背景模糊 */
+    
+    /* ========== 阴影系统 ========== */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    
+    /* 内阴影 */
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+    
+    /* ========== 间距系统 ========== */
+    /* 基于0.25rem的倍数系统 */
+    --spacing-0: 0;
+    --spacing-1: 0.25rem;    /* 4px */
+    --spacing-2: 0.5rem;     /* 8px */
+    --spacing-3: 0.75rem;    /* 12px */
+    --spacing-4: 1rem;       /* 16px */
+    --spacing-5: 1.25rem;    /* 20px */
+    --spacing-6: 1.5rem;     /* 24px */
+    --spacing-8: 2rem;       /* 32px */
+    --spacing-10: 2.5rem;    /* 40px */
+    --spacing-12: 3rem;      /* 48px */
+    --spacing-16: 4rem;      /* 64px */
+    --spacing-20: 5rem;      /* 80px */
+    --spacing-24: 6rem;      /* 96px */
+    
+    /* ========== 圆角系统 ========== */
+    --radius-none: 0;
+    --radius-sm: 0.125rem;   /* 2px */
+    --radius-md: 0.375rem;   /* 6px */
+    --radius-lg: 0.5rem;     /* 8px */
+    --radius-xl: 0.75rem;    /* 12px */
+    --radius-2xl: 1rem;      /* 16px */
+    --radius-3xl: 1.5rem;    /* 24px */
+    --radius-full: 9999px;   /* 完全圆形 */
+    
+    /* ========== 字体系统 ========== */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: 'SF Mono', Monaco, 'Cascadia Mono', 'Segoe UI Mono', 'Roboto Mono', 'Courier New', monospace;
+    --font-serif: Georgia, Cambria, 'Times New Roman', Times, serif;
+    
+    /* 字体大小 */
+    --text-xs: 0.75rem;      /* 12px */
+    --text-sm: 0.875rem;     /* 14px */
+    --text-base: 1rem;       /* 16px */
+    --text-lg: 1.125rem;     /* 18px */
+    --text-xl: 1.25rem;      /* 20px */
+    --text-2xl: 1.5rem;      /* 24px */
+    --text-3xl: 1.875rem;    /* 30px */
+    --text-4xl: 2.25rem;     /* 36px */
+    
+    /* 字体权重 */
+    --font-thin: 100;
+    --font-extralight: 200;
+    --font-light: 300;
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+    --font-extrabold: 800;
+    --font-black: 900;
+    
+    /* 行高 */
+    --leading-none: 1;
+    --leading-tight: 1.25;
+    --leading-snug: 1.375;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.625;
+    --leading-loose: 2;
+    
+    /* ========== 过渡动画 ========== */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* ========== 层级系统 ========== */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+    --z-toast: 1080;
+    
+    /* ========== 其他变量 ========== */
+    --max-width-xs: 20rem;    /* 320px */
+    --max-width-sm: 24rem;    /* 384px */
+    --max-width-md: 28rem;    /* 448px */
+    --max-width-lg: 32rem;    /* 512px */
+    --max-width-xl: 36rem;    /* 576px */
+    --max-width-2xl: 42rem;   /* 672px */
+    --max-width-3xl: 48rem;   /* 768px */
+    --max-width-4xl: 56rem;   /* 896px */
+    --max-width-5xl: 64rem;   /* 1024px */
+    --max-width-6xl: 72rem;   /* 1152px */
+    --max-width-7xl: 80rem;   /* 1280px */
+    
+    --container-padding: 1rem;
+}
+
+/* ========== 深色主题变量覆盖 ========== */
+.dark {
+    /* 主色调 */
+    --primary-color: #818cf8;
+    --primary-hover: #6366f1;
+    --primary-active: #4f46e5;
+    --primary-light: rgba(129, 140, 248, 0.2);
+    --primary-dark: #3730a3;
+    
+    /* 文本色 */
+    --text-primary: #f9fafb;
+    --text-secondary: #e5e7eb;
+    --text-tertiary: #d1d5db;
+    --text-disabled: #6b7280;
+    --text-on-primary: #ffffff;
+    
+    /* 背景色 */
+    --bg-primary: #111827;
+    --bg-secondary: #1f2937;
+    --bg-tertiary: #374151;
+    --bg-hover: rgba(255, 255, 255, 0.1);
+    --bg-active: rgba(255, 255, 255, 0.2);
+    
+    /* 边框色 */
+    --border-color: #374151;
+    --border-hover: #4b5563;
+    --border-active: #6b7280;
+    
+    /* 覆盖层 */
+    --overlay-bg: rgba(0, 0, 0, 0.7);
+    --backdrop-bg: rgba(0, 0, 0, 0.3);
+    
+    /* 阴影 */
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px -1px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+}
+
+/* ========== 浅色主题变量覆盖 ========== */
+.light {
+    /* 保持默认值，已在上方定义 */
+}
+
+/* ========== 高对比度模式支持 ========== */
+@media (prefers-contrast: high) {
+    :root {
+        --primary-color: #0044cc;
+        --success-color: #006600;
+        --warning-color: #996600;
+        --danger-color: #cc0000;
+        
+        --text-primary: #000000;
+        --text-secondary: #333333;
+        --border-color: #000000;
+        
+        --shadow-sm: 0 0 0 1px #000000;
+        --shadow-md: 0 0 0 2px #000000;
+    }
+    
+    .dark {
+        --text-primary: #ffffff;
+        --text-secondary: #cccccc;
+        --border-color: #ffffff;
+    }
+}
+
+/* ========== 减少动画模式支持 ========== */
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --transition-fast: 0ms;
+        --transition-normal: 0ms;
+        --transition-slow: 0ms;
+    }
+}
+
+/* ========== 基础样式重置 ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+#app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ========== 滚动条样式 ========== */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--text-tertiary);
+    border-radius: var(--radius-full);
+    border: 2px solid var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: var(--border-hover);
+}
+
+/* ========== 选择文本样式 ========== */
+::selection {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+/* ========== 聚焦样式 (可访问性) ========== */
+:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* ========== 图片样式 ========== */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ========== 链接样式 ========== */
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* ========== 按钮基础样式 ========== */
+.btn {
+    /* 将在具体组件中定义 */
+}
+
+/* ========== 表单基础样式 ========== */
+input,
+textarea,
+select,
+button {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+/* ========== 工具类 ========== */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.multi-line-truncate {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

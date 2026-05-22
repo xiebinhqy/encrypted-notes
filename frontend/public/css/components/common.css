@@ -1,0 +1,633 @@
+/* 通用组件样式
+ * 包含按钮、卡片、表单、徽章等通用组件的样式
+ */
+
+/* 1. 按钮样式 */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.5;
+    border-radius: 0.5rem;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    gap: 0.5rem;
+  }
+  
+  .btn:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+  }
+  
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  
+  /* 按钮大小 */
+  .btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .btn-xl {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+  
+  /* 按钮变体 */
+  .btn-primary {
+    background-color: #6366f1;
+    color: white;
+    border-color: #6366f1;
+  }
+  
+  .btn-primary:hover {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+  }
+  
+  .btn-primary:focus {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+  }
+  
+  .btn-secondary {
+    background-color: #1e293b;
+    color: #cbd5e1;
+    border-color: #334155;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #334155;
+    border-color: #475569;
+  }
+  
+  .btn-success {
+    background-color: #10b981;
+    color: white;
+    border-color: #10b981;
+  }
+  
+  .btn-success:hover {
+    background-color: #059669;
+    border-color: #059669;
+  }
+  
+  .btn-danger {
+    background-color: #ef4444;
+    color: white;
+    border-color: #ef4444;
+  }
+  
+  .btn-danger:hover {
+    background-color: #dc2626;
+    border-color: #dc2626;
+  }
+  
+  .btn-outline {
+    background-color: transparent;
+    color: #cbd5e1;
+    border-color: #475569;
+  }
+  
+  .btn-outline:hover {
+    background-color: #334155;
+    border-color: #64748b;
+  }
+  
+  .btn-ghost {
+    background-color: transparent;
+    color: #cbd5e1;
+    border-color: transparent;
+  }
+  
+  .btn-ghost:hover {
+    background-color: #334155;
+  }
+  
+  .btn-link {
+    background-color: transparent;
+    color: #818cf8;
+    border-color: transparent;
+    text-decoration: underline;
+    padding: 0;
+    height: auto;
+  }
+  
+  .btn-link:hover {
+    color: #6366f1;
+    text-decoration: none;
+  }
+  
+  /* 2. 卡片样式 */
+  .card {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .card:hover {
+    border-color: #475569;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  }
+  
+  .card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #334155;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #f8fafc;
+    margin: 0;
+  }
+  
+  .card-subtitle {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    margin-top: 0.25rem;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  .card-footer {
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid #334155;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  /* 紧凑卡片 */
+  .card-compact .card-header {
+    padding: 1rem 1.25rem;
+  }
+  
+  .card-compact .card-body {
+    padding: 1rem 1.25rem;
+  }
+  
+  .card-compact .card-footer {
+    padding: 1rem 1.25rem;
+  }
+  
+  /* 3. 表单组件 */
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #cbd5e1;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-label.required::after {
+    content: "*";
+    color: #ef4444;
+    margin-left: 0.25rem;
+  }
+  
+  .form-control {
+    display: block;
+    width: 100%;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #f8fafc;
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 0.5rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .form-control:focus {
+    border-color: #818cf8;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    outline: none;
+  }
+  
+  .form-control::placeholder {
+    color: #64748b;
+  }
+  
+  .form-control:disabled {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #64748b;
+    cursor: not-allowed;
+  }
+  
+  .form-text {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #94a3b8;
+  }
+  
+  .form-text.error {
+    color: #ef4444;
+  }
+  
+  .form-text.success {
+    color: #10b981;
+  }
+  
+  /* 表单验证状态 */
+  .form-control.is-valid {
+    border-color: #10b981;
+  }
+  
+  .form-control.is-invalid {
+    border-color: #ef4444;
+  }
+  
+  /* 复选框和单选框 */
+  .form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+  }
+  
+  .form-check-input {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+    cursor: pointer;
+  }
+  
+  .form-check-label {
+    font-size: 0.875rem;
+    color: #cbd5e1;
+    cursor: pointer;
+  }
+  
+  /* 4. 徽章样式 */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    border-radius: 9999px;
+    white-space: nowrap;
+  }
+  
+  .badge-primary {
+    background-color: rgba(99, 102, 241, 0.1);
+    color: #818cf8;
+  }
+  
+  .badge-secondary {
+    background-color: rgba(100, 116, 139, 0.1);
+    color: #94a3b8;
+  }
+  
+  .badge-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+  
+  .badge-warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+  }
+  
+  .badge-danger {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+  }
+  
+  .badge-info {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+  }
+  
+  /* 5. 提示框 */
+  .alert {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid transparent;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .alert-icon {
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+  
+  .alert-content {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .alert-title {
+    font-weight: 600;
+    color: inherit;
+    margin-bottom: 0.25rem;
+  }
+  
+  .alert-message {
+    font-size: 0.875rem;
+    color: inherit;
+    opacity: 0.9;
+  }
+  
+  .alert-close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+    opacity: 0.7;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  
+  .alert-close:hover {
+    opacity: 1;
+  }
+  
+  /* 提示框变体 */
+  .alert-info {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+  }
+  
+  .alert-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+  }
+  
+  .alert-warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+  }
+  
+  .alert-danger {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+  }
+  
+  /* 6. 工具提示 */
+  .tooltip {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .tooltip .tooltip-text {
+    visibility: hidden;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.5rem 0.75rem;
+    background-color: #1e293b;
+    color: #f8fafc;
+    font-size: 0.75rem;
+    border-radius: 0.375rem;
+    white-space: nowrap;
+    border: 1px solid #334155;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  .tooltip .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #1e293b transparent transparent transparent;
+  }
+  
+  .tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+  }
+  
+  /* 7. 加载指示器 */
+  .spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+  }
+  
+  .spinner-sm {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-width: 1.5px;
+  }
+  
+  .spinner-lg {
+    width: 2rem;
+    height: 2rem;
+    border-width: 3px;
+  }
+  
+  .spinner-xl {
+    width: 3rem;
+    height: 3rem;
+    border-width: 4px;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  /* 8. 进度条 */
+  .progress {
+    width: 100%;
+    height: 0.5rem;
+    background-color: #1e293b;
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+  
+  .progress-bar {
+    height: 100%;
+    border-radius: 9999px;
+    background-color: #6366f1;
+    transition: width 0.3s ease;
+  }
+  
+  .progress-bar-striped {
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-size: 1rem 1rem;
+  }
+  
+  .progress-bar-animated {
+    animation: progress-bar-stripes 1s linear infinite;
+  }
+  
+  @keyframes progress-bar-stripes {
+    from { background-position: 1rem 0; }
+    to { background-position: 0 0; }
+  }
+  
+  /* 9. 分隔线 */
+  .divider {
+    height: 1px;
+    background-color: #334155;
+    border: none;
+    margin: 1rem 0;
+  }
+  
+  .divider-vertical {
+    width: 1px;
+    height: auto;
+    background-color: #334155;
+    border: none;
+    margin: 0 1rem;
+  }
+  
+  /* 10. 头像 */
+  .avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    overflow: hidden;
+    background-color: #334155;
+    color: #f8fafc;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  
+  .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .avatar-sm {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.75rem;
+  }
+  
+  .avatar-lg {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.125rem;
+  }
+  
+  .avatar-xl {
+    width: 4rem;
+    height: 4rem;
+    font-size: 1.5rem;
+  }
+  
+  /* 11. 标签 */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    border-radius: 0.25rem;
+    background-color: #334155;
+    color: #cbd5e1;
+    gap: 0.25rem;
+  }
+  
+  .tag-close {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+    opacity: 0.7;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .tag-close:hover {
+    opacity: 1;
+  }
+  
+  /* 12. 面包屑 */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 0;
+    margin-bottom: 1rem;
+    list-style: none;
+  }
+  
+  .breadcrumb-item {
+    display: flex;
+    align-items: center;
+    color: #94a3b8;
+    font-size: 0.875rem;
+  }
+  
+  .breadcrumb-item:not(:last-child)::after {
+    content: "/";
+    margin: 0 0.5rem;
+    color: #64748b;
+  }
+  
+  .breadcrumb-item.active {
+    color: #f8fafc;
+    font-weight: 500;
+  }
+  
+  .breadcrumb-item a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  
+  .breadcrumb-item a:hover {
+    color: #f8fafc;
+    text-decoration: underline;
+  }

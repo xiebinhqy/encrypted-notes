@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>离线模式 - 我的加密笔记</title>
+    
+    <!-- 外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        dark: {
+                            DEFAULT: '#0f172a',
+                            light: '#1e293b',
+                            lighter: '#334155',
+                        },
+                        light: {
+                            DEFAULT: '#f8fafc',
+                            dark: '#cbd5e1',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- 内联样式 -->
+    <style>
+        .gradient-bg { 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); 
+        }
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="offline-container w-full max-w-md">
+        <!-- 离线内容卡片 -->
+        <div class="offline-card bg-dark-light rounded-2xl p-8 shadow-2xl border border-dark-lighter text-center">
+            <!-- 离线图标 -->
+            <div class="offline-icon w-20 h-20 rounded-full bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-wifi-slash text-4xl text-amber-400"></i>
+            </div>
+            
+            <!-- 标题 -->
+            <h1 class="text-2xl font-bold text-white mb-3">网络连接已断开</h1>
+            
+            <!-- 描述 -->
+            <p class="text-gray-300 mb-6">
+                您当前处于离线状态。加密笔记系统已进入离线模式，您可以继续编辑已缓存的笔记。
+            </p>
+            
+            <!-- 功能列表 -->
+            <div class="offline-features bg-dark rounded-lg p-4 mb-6 text-left">
+                <h3 class="text-sm font-semibold text-gray-300 mb-3 flex items-center">
+                    <i class="fa-solid fa-check-circle text-emerald-400 mr-2"></i>
+                    离线可用功能
+                </h3>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-check text-emerald-400 mt-0.5 mr-2 text-xs"></i>
+                        <span>查看已缓存的笔记和分类</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-check text-emerald-400 mt-0.5 mr-2 text-xs"></i>
+                        <span>创建和编辑新笔记（自动保存草稿）</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-check text-emerald-400 mt-0.5 mr-2 text-xs"></i>
+                        <span>搜索本地笔记内容</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-check text-emerald-400 mt-0.5 mr-2 text-xs"></i>
+                        <span>笔记分类和标签管理</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 状态指示器 -->
+            <div class="status-indicator mb-6">
+                <div class="flex items-center justify-center space-x-2 mb-3">
+                    <div class="w-3 h-3 rounded-full bg-amber-400 pulse"></div>
+                    <span class="text-amber-400 text-sm font-medium">离线模式</span>
+                </div>
+                <p class="text-gray-400 text-sm">
+                    网络恢复后，所有更改将自动同步
+                </p>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="offline-actions space-y-3">
+                <button id="retry-btn" 
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg transition-colors font-medium flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>重试连接</span>
+                </button>
+                
+                <button id="local-btn" 
+                        class="w-full bg-dark-lighter hover:bg-dark text-gray-300 hover:text-white py-3 rounded-lg transition-colors font-medium flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>进入本地笔记</span>
+                </button>
+                
+                <button id="drafts-btn" 
+                        class="w-full bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 hover:text-amber-300 py-3 rounded-lg transition-colors font-medium flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-file-pen"></i>
+                    <span>查看待同步草稿 (<span id="draft-count">0</span>)</span>
+                </button>
+            </div>
+            
+            <!-- 网络检测状态 -->
+            <div class="network-status mt-6 pt-4 border-t border-dark-lighter">
+                <div class="flex items-center justify-center space-x-2 text-gray-400 text-sm">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>正在检测网络连接...</span>
+                </div>
+                <div class="mt-2 text-xs text-gray-500">
+                    最后在线时间: <span id="last-online">--:--:--</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 技术支持信息 -->
+        <div class="mt-6 text-center text-gray-500 text-sm">
+            <p>需要帮助？请检查您的网络连接，或稍后重试。</p>
+            <p class="mt-1">离线数据将保存至浏览器本地存储。</p>
+        </div>
+    </div>
+    
+    <!-- 内联脚本 -->
+    <script>
+        // 更新最后在线时间
+        function updateLastOnlineTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('zh-CN', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('last-online').textContent = timeString;
+        }
+        
+        // 检测网络状态
+        function checkNetworkStatus() {
+            const isOnline = navigator.onLine;
+            const networkStatus = document.querySelector('.network-status span');
+            
+            if (isOnline) {
+                networkStatus.textContent = '网络已恢复，正在重连...';
+                networkStatus.style.color = '#10b981';
+                
+                // 延迟跳转，让用户看到状态变化
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+            } else {
+                networkStatus.textContent = '网络连接已断开';
+                networkStatus.style.color = '#f59e0b';
+            }
+            
+            return isOnline;
+        }
+        
+        // 模拟草稿数量
+        function updateDraftCount() {
+            try {
+                const offlineQueue = JSON.parse(localStorage.getItem('encrypted_notes_offline_queue') || '[]');
+                const pendingCount = offlineQueue.filter(item => item.status === 'pending').length;
+                document.getElementById('draft-count').textContent = pendingCount;
+            } catch (error) {
+                console.error('获取草稿数量失败:', error);
+                document.getElementById('draft-count').textContent = '0';
+            }
+        }
+        
+        // 事件监听
+        document.getElementById('retry-btn').addEventListener('click', () => {
+            const statusElement = document.querySelector('.network-status span');
+            statusElement.textContent = '正在尝试重新连接...';
+            statusElement.style.color = '#3b82f6';
+            
+            setTimeout(() => {
+                if (checkNetworkStatus()) {
+                    return;
+                }
+                
+                // 如果仍然离线，显示提示
+                statusElement.textContent = '连接失败，请检查网络设置';
+                statusElement.style.color = '#ef4444';
+                
+                // 3秒后恢复原状态
+                setTimeout(() => {
+                    statusElement.textContent = '网络连接已断开';
+                    statusElement.style.color = '#f59e0b';
+                }, 3000);
+            }, 1000);
+        });
+        
+        document.getElementById('local-btn').addEventListener('click', () => {
+            // 尝试加载应用
+            window.location.href = '/';
+        });
+        
+        document.getElementById('drafts-btn').addEventListener('click', () => {
+            // 这里可以跳转到草稿管理页面
+            alert('草稿管理功能将在网络恢复后可用');
+        });
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLastOnlineTime();
+            checkNetworkStatus();
+            updateDraftCount();
+            
+            // 每秒更新一次最后在线时间
+            setInterval(updateLastOnlineTime, 1000);
+            
+            // 每5秒检查一次网络状态
+            setInterval(checkNetworkStatus, 5000);
+            
+            // 监听网络状态变化
+            window.addEventListener('online', () => {
+                checkNetworkStatus();
+            });
+            
+            window.addEventListener('offline', () => {
+                checkNetworkStatus();
+            });
+            
+            // 更新草稿数量
+            setInterval(updateDraftCount, 30000);
+        });
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            // F5 刷新
+            if (e.key === 'F5') {
+                e.preventDefault();
+                window.location.reload();
+            }
+            
+            // Ctrl/Cmd + R 刷新
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                e.preventDefault();
+                window.location.reload();
+            }
+            
+            // Enter 重试
+            if (e.key === 'Enter') {
+                document.getElementById('retry-btn').click();
+            }
+            
+            // Esc 进入本地
+            if (e.key === 'Escape') {
+                document.getElementById('local-btn').click();
+            }
+        });
+    </script>
+</body>
+</html>

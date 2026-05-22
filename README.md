@@ -251,3 +251,68 @@ wrangler tail --env production encrypted-notes-production-backend
 
 
 
+
+
+
+# 最新部署
+
+## 快速启动说明
+
+1. 本地开发启动
+
+
+```
+# 进入后端目录
+cd backend
+
+# 安装依赖
+npm install
+
+# 初始化本地数据库
+npm run init-db:local
+
+# 启动本地开发服务器 (端口8787)
+npm run dev
+
+```
+
+## 2. 访问应用
+
+打开浏览器访问: http://localhost:8787
+
+3. 部署到 Cloudflare
+
+
+```
+# 部署到预览环境
+npm run deploy:preview
+
+# 部署到测试环境
+npm run deploy:staging
+
+# 部署到生产环境
+npm run deploy:production
+
+```
+
+## 4. 数据库初始化（线上环境）
+
+```
+# 预览环境
+npm run init-db:preview
+
+# 测试环境
+npm run init-db:staging
+
+# 生产环境
+npm run init-db:production
+
+```
+
+所有文件已完全按照您的配置生成，本地运行时会自动使用端口 8787，前端静态资源由后端统一提供，彻底解决跨域问题。系统包含完整的三环境隔离、双 D1 数据库备份、KV 历史记录、定时任务和 Turnstile 验证码验证功能。
+需要我帮你更新前端登录和注册页面，添加 Turnstile 验证码集成代码吗？
+
+
+
+
+

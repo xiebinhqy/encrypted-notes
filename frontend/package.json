@@ -1,0 +1,121 @@
+{
+    "name": "encrypted-notes-frontend",
+    "version": "5.1.0",
+    "description": "端对端加密私人笔记应用 - 前端界面",
+    "private": true,
+    "type": "module",
+    "main": "./public/js/app.js",
+    "scripts": {
+      "dev": "wrangler pages dev public --port 8787 --local-protocol http --compatibility-date=2024-01-01",
+      "dev:proxy": "wrangler pages dev public --port 8787 --local-protocol http --compatibility-date=2024-01-01 --proxy 8788",
+      "build": "node scripts/build.js",
+      "build:prod": "NODE_ENV=production node scripts/build.js",
+      "preview": "wrangler pages deploy public --env preview",
+      "deploy": "wrangler pages deploy public --env production",
+      "deploy:preview": "wrangler pages deploy public --branch preview --env preview",
+      "deploy:production": "wrangler pages deploy public --branch main --env production",
+      "lint": "eslint ./public/js --ext .js",
+      "lint:fix": "eslint ./public/js --ext .js --fix",
+      "format": "prettier --write './public/**/*.{js,html,css,json}'",
+      "format:check": "prettier --check './public/**/*.{js,html,css,json}'",
+      "test": "vitest run",
+      "test:watch": "vitest",
+      "test:ui": "vitest --ui",
+      "test:coverage": "vitest run --coverage",
+      "audit": "npm audit",
+      "audit:fix": "npm audit fix",
+      "clean": "rm -rf dist && rm -rf .wrangler",
+      "clean:all": "npm run clean && rm -rf node_modules",
+      "type-check": "tsc --noEmit",
+      "analyze": "source-map-explorer 'dist/*.js'",
+      "serve": "http-server public -p 3000 -c-1",
+      "serve:https": "http-server public -p 3000 -c-1 -S -C cert.pem -K key.pem",
+      "pwa:generate-icons": "node scripts/generate-icons.js",
+      "pwa:generate-manifest": "node scripts/generate-manifest.js",
+      "security:check": "npm audit --audit-level=high",
+      "security:fix": "npm audit fix --force",
+      "deps:check": "npx npm-check -u",
+      "deps:update": "npx npm-check -u -E",
+      "size": "bundlesize",
+      "size:check": "bundlesize --max-size 100KB"
+    },
+    "dependencies": {
+      "chart.js": "^4.4.0",
+      "idb": "^8.0.0",
+      "localforage": "^1.10.0",
+      "marked": "^9.1.0",
+      "prismjs": "^1.29.0",
+      "uuid": "^9.0.0"
+    },
+    "devDependencies": {
+      "@cloudflare/workers-types": "^4.20240208.0",
+      "@eslint/js": "^8.57.0",
+      "@testing-library/dom": "^9.3.3",
+      "@testing-library/jest-dom": "^6.1.5",
+      "@testing-library/user-event": "^14.5.1",
+      "@types/node": "^20.11.0",
+      "@typescript-eslint/eslint-plugin": "^6.19.0",
+      "@typescript-eslint/parser": "^6.19.0",
+      "@vitest/coverage-v8": "^1.2.0",
+      "@vitest/ui": "^1.2.0",
+      "autoprefixer": "^10.4.16",
+      "bundlesize": "^0.18.1",
+      "esbuild": "^0.20.0",
+      "eslint": "^8.56.0",
+      "eslint-config-prettier": "^9.1.0",
+      "eslint-plugin-import": "^2.29.0",
+      "globals": "^13.24.0",
+      "http-server": "^14.1.1",
+      "jsdom": "^23.0.1",
+      "postcss": "^8.4.33",
+      "prettier": "^3.1.1",
+      "source-map-explorer": "^2.5.3",
+      "tailwindcss": "^3.3.0",
+      "typescript": "^5.3.3",
+      "vite": "^5.0.0",
+      "vitest": "^1.2.0",
+      "wrangler": "^3.0.0"
+    },
+    "engines": {
+      "node": ">=18.0.0",
+      "npm": ">=9.0.0"
+    },
+    "browserslist": {
+      "production": [
+        ">0.5%",
+        "not dead",
+        "not op_mini all",
+        "last 2 versions",
+        "Firefox ESR",
+        "not IE 11"
+      ],
+      "development": [
+        "last 1 chrome version",
+        "last 1 firefox version",
+        "last 1 safari version"
+      ]
+    },
+    "keywords": [
+      "encryption",
+      "notes",
+      "pwa",
+      "offline",
+      "cloudflare",
+      "privacy",
+      "security"
+    ],
+    "author": "Your Name <your.email@example.com>",
+    "license": "MIT",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/yourusername/encrypted-notes.git"
+    },
+    "bugs": {
+      "url": "https://github.com/yourusername/encrypted-notes/issues"
+    },
+    "homepage": "https://notes.yourdomain.com",
+    "funding": {
+      "type": "individual",
+      "url": "https://github.com/sponsors/yourusername"
+    }
+  }

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>模块测试</title>
+</head>
+<body>
+    <h1>ES6 模块测试</h1>
+    <div id="result"></div>
+    
+    <script type="module">
+        async function test() {
+            try {
+                const result = document.getElementById('result');
+                
+                // 测试 api 模块
+                const apiModule = await import('./js/api/index.js');
+                result.innerHTML += `<p>✅ api/index.js 加载成功，导出: ${Object.keys(apiModule).join(', ')}</p>`;
+                
+                // 测试 utils
+                result.innerHTML += `<p>✅ Utils: ${typeof Utils}</p>`;
+                
+                // 测试 config
+                result.innerHTML += `<p>✅ Config: ${typeof Config}</p>`;
+                
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    `<p style="color: red">❌ 错误: ${error.message}</p>`;
+                console.error(error);
+            }
+        }
+        
+        test();
+    </script>
+</body>
+</html>

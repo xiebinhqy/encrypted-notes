@@ -1,0 +1,171 @@
+{
+    "name": "我的加密笔记",
+    "short_name": "加密笔记",
+    "description": "安全、私密、高效的个人笔记管理系统 - 端对端加密，数据仅您可见",
+    "start_url": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#0f172a",
+    "theme_color": "#0f172a",
+    "categories": ["productivity", "utilities"],
+    "lang": "zh-CN",
+    "dir": "ltr",
+    
+    "icons": [
+      {
+        "src": "/assets/images/icons/icon-72x72.png",
+        "sizes": "72x72",
+        "type": "image/png",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "/assets/images/icons/icon-96x96.png",
+        "sizes": "96x96",
+        "type": "image/png",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "/assets/images/icons/icon-128x128.png",
+        "sizes": "128x128",
+        "type": "image/png",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "/assets/images/icons/icon-144x144.png",
+        "sizes": "144x144",
+        "type": "image/png",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "/assets/images/icons/icon-152x152.png",
+        "sizes": "152x152",
+        "type": "image/png",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "/assets/images/icons/icon-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "/assets/images/icons/icon-384x384.png",
+        "sizes": "384x384",
+        "type": "image/png",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "/assets/images/icons/icon-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any maskable"
+      }
+    ],
+    
+    "screenshots": [
+      {
+        "src": "/assets/images/screenshots/dashboard.png",
+        "sizes": "1280x720",
+        "type": "image/png",
+        "form_factor": "wide",
+        "label": "数据看板界面"
+      },
+      {
+        "src": "/assets/images/screenshots/editor.png",
+        "sizes": "1280x720",
+        "type": "image/png",
+        "form_factor": "wide",
+        "label": "笔记编辑器"
+      }
+    ],
+    
+    "shortcuts": [
+      {
+        "name": "新建笔记",
+        "short_name": "新建",
+        "description": "快速创建新笔记",
+        "url": "/?new=true",
+        "icons": [
+          {
+            "src": "/assets/images/icons/icon-96x96.png",
+            "sizes": "96x96"
+          }
+        ]
+      },
+      {
+        "name": "数据看板",
+        "short_name": "看板",
+        "description": "查看笔记统计数据",
+        "url": "/dashboard",
+        "icons": [
+          {
+            "src": "/assets/images/icons/icon-96x96.png",
+            "sizes": "96x96"
+          }
+        ]
+      },
+      {
+        "name": "搜索笔记",
+        "short_name": "搜索",
+        "description": "快速搜索笔记内容",
+        "url": "/?search=true",
+        "icons": [
+          {
+            "src": "/assets/images/icons/icon-96x96.png",
+            "sizes": "96x96"
+          }
+        ]
+      }
+    ],
+    
+    "related_applications": [],
+    
+    "prefer_related_applications": false,
+    
+    "protocol_handlers": [
+      {
+        "protocol": "web+encryptednotes",
+        "url": "/auth/callback?url=%s"
+      }
+    ],
+    
+    "handle_links": "preferred",
+    
+    "edge_side_panel": {
+      "preferred_width": 400
+    },
+    
+    "launch_handler": {
+      "client_mode": "auto"
+    },
+    
+    "file_handlers": [
+      {
+        "action": "/import",
+        "accept": {
+          "text/markdown": [".md", ".markdown"],
+          "text/plain": [".txt"],
+          "application/json": [".json"]
+        }
+      }
+    ],
+    
+    "share_target": {
+      "action": "/share",
+      "method": "POST",
+      "enctype": "multipart/form-data",
+      "params": {
+        "title": "title",
+        "text": "text",
+        "url": "url",
+        "files": [
+          {
+            "name": "files",
+            "accept": ["text/markdown", "text/plain", "image/*"]
+          }
+        ]
+      }
+    },
+    
+    "capture_links": "new-client"
+  }

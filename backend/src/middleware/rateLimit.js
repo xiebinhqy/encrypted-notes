@@ -1,62 +1,69 @@
 /**
  * 登录限流中间件
- * 防止暴力破解
- * 版本：v2.1.0
+ * @version v2.1.1
+ * @date 2026-05-20
+ * @description 使用LOGIN_RATE_LIMIT KV命名空间
  */
 
-import { response } from '../utils/response.js';
-import { logger } from '../utils/logger.js';
+import { RateLimitError } from '../utils/errors.js';
+import { createResponse } from '../utils/response.js';
+import logger from '../utils/logger.js';
 
 /**
- * 登录限流中间件
- * @param {string} email 用户邮箱
- * @param {object} kv KV命名空间
- * @returns {Promise<boolean>} 是否允许登录
+ * 限流中间件
+ * @param {Request} request - 请求对象
+ * @param {Object} env - 环境变量
+ * @returns {Promise<Response|null>} 响应对象或null
  */
-export async function rateLimitMiddleware(email, kv) {
-  const key = `rate_limit:${email}`;
-  const now = Date.now();
-  const windowMs = 15 * 60 * 1000; // 15分钟窗口
-  const maxAttempts = 5; // 最大尝试次数
-
+export default async function rateLimitMiddleware(request, env) {
   try {
-    // 获取当前尝试次数
-    const value = await kv.get(key);
-    let attempts = value ? JSON.parse(value) : { count: 0, windowStart: now };
-
-    // 如果窗口已过期，重置计数
-    if (now - attempts.windowStart > windowMs) {
-      attempts = { count: 0, windowStart: now };
+    // 只对认证接口进行限流
+    const url = new URL(request.url);
+    if (!url.pathname.startsWith('/api/auth')) {
+      return null;
     }
-
-    // 增加尝试次数
-    attempts.count++;
-
+    
+    const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
+    const key = `ratelimit:${clientIP}`;
+    
+    // 从KV获取当前计数
+    let current = await env.LOGIN_RATE_LIMIT.get(key, { type: 'json' });
+    const now = Date.now();
+    const windowMs = 60000; // 1分钟
+    const maxRequests = 100; // 最多100次
+    
+    if (!current || now - current.timestamp > windowMs) {
+      // 窗口过期，重置计数
+      current = {
+        count: 1,
+        timestamp: now
+      };
+    } else {
+      // 增加计数
+      current.count++;
+    }
+    
     // 保存到KV
-    await kv.put(key, JSON.stringify(attempts), {
+    await env.LOGIN_RATE_LIMIT.put(key, JSON.stringify(current), {
       expirationTtl: Math.ceil(windowMs / 1000)
     });
-
+    
     // 检查是否超过限制
-    if (attempts.count > maxAttempts) {
-      logger.warn('登录尝试次数超过限制', { email, attempts: attempts.count });
-      return false;
+    if (current.count > maxRequests) {
+      logger.warn('Rate limit exceeded', {
+        clientIP,
+        count: current.count,
+        max: maxRequests
+      });
+      throw new RateLimitError(`Too many requests. Please try again later.`);
     }
-
-    return true;
+    
+    return null;
   } catch (error) {
-    logger.error('登录限流检查失败', { error: error.message });
-    // 如果KV出错，允许登录（降级处理）
-    return true;
+    if (error instanceof RateLimitError) {
+      return createResponse({ error: error.message }, 429);
+    }
+    logger.error('Rate limit middleware error', { error: error.message });
+    return null;
   }
-}
-
-/**
- * 登录成功后重置尝试次数
- * @param {string} email 用户邮箱
- * @param {object} kv KV命名空间
- */
-export async function resetRateLimit(email, kv) {
-  const key = `rate_limit:${email}`;
-  await kv.delete(key);
 }

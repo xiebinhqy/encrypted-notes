@@ -1,7 +1,7 @@
 # ==============================================
 # 加密笔记后端 wrangler 完整配置
 # 三环境完全隔离：生产环境(线上) + 测试环境(线上) + 本地环境(本地)
-# 版本：v2.1.1 - 本地单端口8787修复版
+# 版本：v2.1.2 - Wrangler 4.92.0 兼容性修复版
 # 兼容：Wrangler 4.92.0
 # 纯原生Cloudflare Worker，无任何框架依赖
 # ==============================================
@@ -11,12 +11,12 @@ compatibility_date = "2024-04-01"
 compatibility_flags = ["nodejs_compat"]
 
 # ==============================================
-# 本地开发配置（核心修改：固定端口8787）
+# 本地开发配置（固定端口8787）
 # ==============================================
 [dev]
 port = 8787
 local_protocol = "http"
-inspect = true
+# Wrangler 4.92.0 已移除 inspect 配置项，自动开启调试
 
 # ==============================================
 # 静态资源服务配置（前端由后端统一提供，彻底解决跨域）
@@ -33,7 +33,32 @@ ALLOW_PUBLIC_REGISTRATION = "true"
 PBKDF2_ITERATIONS = "100000"
 
 # ==============================================
-# 本地环境配置
+# 本地环境配置（关键修复：添加本地D1和KV绑定）
+# ==============================================
+[[d1_databases]]
+binding = "DB"
+database_name = "staging-notes-db"
+database_id = "815c893f-b1b3-4f05-b737-c544becdaa0f"
+
+[[d1_databases]]
+binding = "BACKUP_DB"
+database_name = "staging-notes-backup"
+database_id = "461970e4-1ff6-4ab9-804e-6a9d5b07f958"
+
+[[kv_namespaces]]
+binding = "LOGIN_RATE_LIMIT"
+id = "752f93008c2e4fdeb17fa8456f6fdad8"
+
+[[kv_namespaces]]
+binding = "NOTE_HISTORY"
+id = "db4e2eded4084eafa2b7b59e1ca39fe1"
+
+[[kv_namespaces]]
+binding = "NOTES_BACKUP"
+id = "c4cf44f2a5d547f68df71ab772995635"
+
+# ==============================================
+# 预览环境配置
 # ==============================================
 [env.preview]
 name = "encrypted-notes-preview-backend"

@@ -1,20 +1,160 @@
-# ==============================================
-# 加密笔记前端部署配置
-# 版本：v2.1.0
-# 兼容：Wrangler 4.92.0
-# ==============================================
+# Cloudflare Workers 前端部署配置
+# 此文件配置前端静态资源的部署
+
 name = "encrypted-notes-frontend"
-compatibility_date = "2024-04-01"
+type = "javascript"
+account_id = "your_account_id_here"
+workers_dev = true
+route = "notes.yourdomain.com/*"
+zone_id = "your_zone_id_here"
 
-[assets]
-directory = "public"
-binding = "ASSETS"
+compatibility_date = "2024-01-01"
 
-[env.preview]
-name = "encrypted-notes-preview-frontend"
+[build]
+command = "npm run build"
+
+[build.upload]
+format = "service-worker"
+
+[site]
+bucket = "./public"
+entry-point = "workers-site"
+
+[vars]
+ENVIRONMENT = "production"
+API_BASE_URL = "https://api.notes.yourdomain.com"
+
+# 环境变量
+[env.production]
+ENVIRONMENT = "production"
+API_BASE_URL = "https://api.notes.yourdomain.com"
 
 [env.staging]
-name = "encrypted-notes-staging-frontend"
+ENVIRONMENT = "staging"
+API_BASE_URL = "https://api-staging.notes.yourdomain.com"
 
-[env.production]
-name = "encrypted-notes-production-frontend"
+[env.development]
+ENVIRONMENT = "development"
+API_BASE_URL = "http://localhost:8788"
+
+# KV命名空间绑定（用于缓存）
+[[kv_namespaces]]
+binding = "CACHE"
+id = "cache_id_here"
+preview_id = "preview_cache_id_here"
+
+# D1数据库绑定（如果需要）
+[[d1_databases]]
+binding = "DB"
+database_name = "notes-frontend"
+database_id = "d1_database_id_here"
+preview_database_id = "preview_d1_database_id_here"
+
+# R2存储绑定（用于文件上传）
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "notes-assets"
+preview_bucket_name = "notes-assets-preview"
+
+# 分析绑定
+[analytics_engine_datasets]
+binding = "ANALYTICS"
+dataset = "notes_frontend_analytics"
+
+# 队列绑定
+[[queues.producers]]
+queue = "sync-queue"
+binding = "SYNC_QUEUE"
+
+# 服务绑定
+[[services]]
+binding = "AUTH_SERVICE"
+service = "auth-service"
+environment = "production"
+
+[[services]]
+binding = "API_SERVICE"
+service = "api-service"
+environment = "production"
+
+# 日志设置
+[logfwdr]
+bindings = [
+  { name = "LOGS", destination = "your_log_destination_here" }
+]
+
+# 路由规则
+[[triggers.routes]]
+pattern = "notes.yourdomain.com/*"
+zone_name = "yourdomain.com"
+
+[[triggers.routes]]
+pattern = "*.notes.yourdomain.com/*"
+zone_name = "yourdomain.com"
+
+# 自定义域
+[[triggers.custom_domains]]
+domain = "notes.yourdomain.com"
+
+[[triggers.custom_domains]]
+domain = "www.notes.yourdomain.com"
+
+# 开发服务器配置
+[dev]
+port = 8787
+local_protocol = "http"
+upstream_protocol = "http"
+ip = "127.0.0.1"
+
+[dev.server]
+port = 8787
+host = "127.0.0.1"
+
+[dev.remote]
+host = "127.0.0.1"
+port = 8788
+
+# 构建配置
+[build.upload]
+dir = "public"
+format = "modules"
+main = "./public/_worker.js"
+rules = [
+  { type = "ESModule", globs = ["**/*.js"] },
+  { type = "CompiledWasm", globs = ["**/*.wasm"] },
+  { type = "Data", globs = ["**/*.data"] },
+  { type = "Text", globs = ["**/*.txt"] }
+]
+
+# 环境特定配置
+[env.production.vars]
+DEBUG = false
+LOG_LEVEL = "warn"
+
+[env.staging.vars]
+DEBUG = true
+LOG_LEVEL = "info"
+
+[env.development.vars]
+DEBUG = true
+LOG_LEVEL = "debug"
+
+# 部署配置
+[deploy]
+command = "npm run deploy"
+environment = "production"
+branch = "main"
+preview = true
+preview_branch = "staging"
+
+# 预览配置
+[preview]
+command = "npm run deploy:preview"
+port = 8787
+host = "127.0.0.1"
+
+# 本地开发配置
+[local]
+persist = true
+persist_to = "./.wrangler/state"
+config = "./wrangler.toml"

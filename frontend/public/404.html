@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>页面未找到 - 我的加密笔记</title>
     
-    <!-- 外部资源引入 -->
+    <!-- 外部资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Tailwind 配置（与主页面完全一致） -->
+    
+    <!-- Tailwind配置 -->
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -26,150 +26,243 @@
                             DEFAULT: '#0f172a',
                             light: '#1e293b',
                             lighter: '#334155',
-                        },
-                        light: {
-                            DEFAULT: '#f8fafc',
-                            dark: '#cbd5e1',
                         }
                     },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'card': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-                        'card-hover': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
                     }
                 }
             }
         }
     </script>
-
-    <!-- 自定义工具类（与主页面完全一致） -->
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto { content-visibility: auto; }
-            .card-transition { @apply transition-all duration-300 ease-in-out hover:shadow-card-hover hover:-translate-y-1; }
-        }
-    </style>
-
-    <!-- 全局样式 -->
+    
+    <!-- 内联样式 -->
     <style>
-        body {
-            background-color: #0f172a;
-            color: #e2e8f0;
-            font-family: 'Inter', system-ui, sans-serif;
+        .gradient-bg { 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); 
         }
-        
-        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); }
-        
-        .glass-effect {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .float {
+            animation: float 6s ease-in-out infinite;
         }
-        
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-20px); }
         }
-        .float-animation { animation: float 6s ease-in-out infinite; }
-        
-        .glow-effect { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
     </style>
 </head>
 
-<body class="font-sans antialiased gradient-bg min-h-screen flex flex-col">
-    <!-- 版本标记: v5.2.0 - 404页面 -->
-    
-    <!-- 顶部导航栏 -->
-    <nav class="glass-effect border-b border-dark-lighter sticky top-0 z-40">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex items-center justify-between">
-                <!-- Logo -->
-                <a href="index.html" class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                        <i class="fa-solid fa-lock text-white text-xl"></i>
-                    </div>
-                    <h1 class="text-xl font-bold text-white tracking-tight">我的加密笔记</h1>
-                </a>
-                
-                <!-- 返回首页按钮 -->
-                <a href="index.html" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium shadow-md shadow-indigo-500/20">
-                    <i class="fa-solid fa-home mr-2"></i>返回首页
-                </a>
+<body class="font-sans antialiased gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="error-container w-full max-w-2xl">
+        <!-- 错误内容 -->
+        <div class="error-content bg-dark-light rounded-2xl p-8 shadow-2xl border border-dark-lighter text-center">
+            <!-- 错误图标 -->
+            <div class="error-icon w-32 h-32 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mx-auto mb-8 float">
+                <i class="fa-solid fa-map-signs text-6xl text-purple-400"></i>
             </div>
-        </div>
-    </nav>
-
-    <!-- 主内容区域 -->
-    <main class="flex-1 flex items-center justify-center px-6 py-12">
-        <div class="text-center max-w-2xl">
-            <!-- 404图标 -->
-            <div class="mb-8">
-                <div class="w-40 h-40 rounded-full bg-indigo-500/10 flex items-center justify-center mx-auto mb-6 float-animation">
-                    <i class="fa-solid fa-file-circle-question text-indigo-400 text-8xl"></i>
-                </div>
-                <h1 class="text-8xl font-bold text-white mb-4">404</h1>
-                <h2 class="text-3xl font-bold text-white mb-4">页面未找到</h2>
-                <p class="text-gray-400 text-lg mb-8">抱歉，您访问的页面不存在或已被移动。请检查URL是否正确，或返回首页继续使用。</p>
+            
+            <!-- 错误代码 -->
+            <div class="error-code mb-4">
+                <span class="text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">404</span>
+            </div>
+            
+            <!-- 标题 -->
+            <h1 class="text-3xl font-bold text-white mb-4">页面未找到</h1>
+            
+            <!-- 描述 -->
+            <p class="text-gray-300 text-lg mb-8 max-w-md mx-auto">
+                抱歉，您访问的页面似乎迷失在数字宇宙中了。可能是链接错误或页面已被移动。
+            </p>
+            
+            <!-- 可能的原因 -->
+            <div class="possible-causes bg-dark rounded-xl p-6 mb-8 text-left max-w-md mx-auto">
+                <h3 class="text-sm font-semibold text-gray-300 mb-3 flex items-center">
+                    <i class="fa-solid fa-question-circle text-indigo-400 mr-2"></i>
+                    可能的原因：
+                </h3>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-circle text-indigo-400/50 mt-0.5 mr-2 text-xs"></i>
+                        <span>URL地址拼写错误</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-circle text-indigo-400/50 mt-0.5 mr-2 text-xs"></i>
+                        <span>页面已被移动或删除</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-circle text-indigo-400/50 mt-0.5 mr-2 text-xs"></i>
+                        <span>链接已过期</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-circle text-indigo-400/50 mt-0.5 mr-2 text-xs"></i>
+                        <span>您没有访问此页面的权限</span>
+                    </li>
+                </ul>
             </div>
             
             <!-- 操作按钮 -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="index.html" class="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors font-medium text-lg shadow-md shadow-indigo-500/20 glow-effect flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-home"></i>
+            <div class="error-actions flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <a href="/" 
+                   class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-house"></i>
                     <span>返回首页</span>
                 </a>
-                <a href="login.html" class="w-full sm:w-auto px-8 py-3 bg-dark-lighter hover:bg-dark text-white rounded-lg transition-colors font-medium text-lg flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-user"></i>
-                    <span>登录账号</span>
-                </a>
+                
+                <button id="back-btn" 
+                        class="px-6 py-3 bg-dark-lighter hover:bg-dark text-gray-300 hover:text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>返回上一页</span>
+                </button>
+                
+                <button id="search-btn" 
+                        class="px-6 py-3 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 hover:text-purple-300 rounded-lg transition-colors font-medium flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-search"></i>
+                    <span>搜索笔记</span>
+                </button>
             </div>
             
             <!-- 快速链接 -->
-            <div class="mt-12 glass-effect rounded-xl p-6 border border-dark-lighter">
-                <h3 class="text-lg font-semibold text-white mb-4">快速访问</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <a href="index.html" class="glass-effect rounded-lg p-4 card-transition border border-dark-lighter">
-                        <i class="fa-solid fa-gauge-high text-indigo-400 text-xl mb-2"></i>
-                        <p class="text-white text-sm">数据看板</p>
+            <div class="quick-links mt-8 pt-6 border-t border-dark-lighter">
+                <h4 class="text-sm font-semibold text-gray-300 mb-3">快速访问：</h4>
+                <div class="flex flex-wrap justify-center gap-3">
+                    <a href="/dashboard" class="px-3 py-1.5 bg-dark-lighter hover:bg-dark text-gray-300 hover:text-white rounded text-sm transition-colors">
+                        数据看板
                     </a>
-                    <a href="index.html#all-notes" class="glass-effect rounded-lg p-4 card-transition border border-dark-lighter">
-                        <i class="fa-solid fa-book text-purple-400 text-xl mb-2"></i>
-                        <p class="text-white text-sm">全部笔记</p>
+                    <a href="/login" class="px-3 py-1.5 bg-dark-lighter hover:bg-dark text-gray-300 hover:text-white rounded text-sm transition-colors">
+                        登录页面
                     </a>
-                    <a href="index.html#drafts" class="glass-effect rounded-lg p-4 card-transition border border-dark-lighter">
-                        <i class="fa-solid fa-file-pen text-cyan-400 text-xl mb-2"></i>
-                        <p class="text-white text-sm">草稿管理</p>
+                    <a href="/settings" class="px-3 py-1.5 bg-dark-lighter hover:bg-dark text-gray-300 hover:text-white rounded text-sm transition-colors">
+                        系统设置
                     </a>
-                    <a href="index.html#settings" class="glass-effect rounded-lg p-4 card-transition border border-dark-lighter">
-                        <i class="fa-solid fa-gear text-amber-400 text-xl mb-2"></i>
-                        <p class="text-white text-sm">系统设置</p>
+                    <a href="/help" class="px-3 py-1.5 bg-dark-lighter hover:bg-dark text-gray-300 hover:text-white rounded text-sm transition-colors">
+                        帮助中心
                     </a>
                 </div>
             </div>
-        </div>
-    </main>
-
-    <!-- 页脚 -->
-    <footer class="border-t border-dark-lighter">
-        <div class="container mx-auto px-6 py-8">
-            <div class="flex flex-col md:flex-row items-center justify-between">
-                <div class="flex items-center space-x-3 mb-4 md:mb-0">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                        <i class="fa-solid fa-lock text-white"></i>
-                    </div>
-                    <span class="text-gray-300">© 2026 我的加密笔记. 保留所有权利.</span>
-                </div>
-                
-                <div class="flex items-center space-x-6">
-                    <a href="#" class="text-gray-300 hover:text-white transition-colors text-sm">隐私政策</a>
-                    <a href="#" class="text-gray-300 hover:text-white transition-colors text-sm">服务条款</a>
-                    <a href="#" class="text-gray-300 hover:text-white transition-colors text-sm">帮助中心</a>
-                    <a href="#" class="text-gray-300 hover:text-white transition-colors text-sm">联系我们</a>
-                </div>
+            
+            <!-- 技术支持 -->
+            <div class="tech-support mt-6 text-center text-gray-500 text-sm">
+                <p>如果问题持续存在，请联系技术支持或检查控制台错误信息。</p>
+                <p class="mt-1">错误ID: <span id="error-id" class="font-mono">404-${Date.now().toString(36)}</span></p>
             </div>
         </div>
-    </footer>
+        
+        <!-- 页脚 -->
+        <div class="mt-8 text-center text-gray-500 text-sm">
+            <p>© 2024 我的加密笔记. 所有数据均受端对端加密保护.</p>
+            <p class="mt-1">版本 v5.1.0 | 安全级别: 最高</p>
+        </div>
+    </div>
+    
+    <!-- 内联脚本 -->
+    <script>
+        // 更新错误ID
+        document.addEventListener('DOMContentLoaded', () => {
+            const errorId = `404-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 6)}`;
+            document.getElementById('error-id').textContent = errorId;
+            
+            // 记录错误
+            console.error(`404错误: 页面 ${window.location.href} 未找到 | 错误ID: ${errorId}`);
+        });
+        
+        // 返回上一页
+        document.getElementById('back-btn').addEventListener('click', () => {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '/';
+            }
+        });
+        
+        // 搜索按钮
+        document.getElementById('search-btn').addEventListener('click', () => {
+            // 这里可以打开搜索模态框
+            const searchUrl = '/?search=true';
+            window.location.href = searchUrl;
+        });
+        
+        // 自动重定向检查
+        const path = window.location.pathname;
+        const commonTypos = {
+            '/dashbord': '/dashboard',
+            '/dashbaord': '/dashboard',
+            '/dashborad': '/dashboard',
+            '/logi': '/login',
+            '/loginn': '/login',
+            '/setings': '/settings',
+            '/seting': '/settings',
+            '/settngs': '/settings',
+            '/nots': '/notes',
+            '/categries': '/categories',
+            '/categoreis': '/categories'
+        };
+        
+        // 检查常见拼写错误
+        if (commonTypos[path]) {
+            console.log(`检测到可能的拼写错误: ${path} -> ${commonTypos[path]}`);
+            
+            // 显示重定向提示
+            setTimeout(() => {
+                const redirectConfirm = confirm(`您是想访问 ${commonTypos[path]} 吗？\n\n检测到可能的拼写错误: ${path}`);
+                if (redirectConfirm) {
+                    window.location.href = commonTypos[path];
+                }
+            }, 1000);
+        }
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            // Enter 返回首页
+            if (e.key === 'Enter') {
+                window.location.href = '/';
+            }
+            
+            // B 返回上一页
+            if (e.key === 'b' || e.key === 'B') {
+                document.getElementById('back-btn').click();
+            }
+            
+            // S 搜索
+            if (e.key === 's' || e.key === 'S') {
+                document.getElementById('search-btn').click();
+            }
+            
+            // F5 刷新
+            if (e.key === 'F5') {
+                window.location.reload();
+            }
+        });
+        
+        // 尝试自动修复URL
+        function attemptAutoFix() {
+            const currentPath = window.location.pathname;
+            
+            // 移除多余斜杠
+            if (currentPath.includes('//')) {
+                const fixedPath = currentPath.replace(/\/+/g, '/');
+                if (fixedPath !== currentPath) {
+                    console.log(`尝试修复URL: ${currentPath} -> ${fixedPath}`);
+                    window.history.replaceState({}, '', fixedPath);
+                    return true;
+                }
+            }
+            
+            // 移除尾部斜杠（除了根路径）
+            if (currentPath !== '/' && currentPath.endsWith('/')) {
+                const fixedPath = currentPath.slice(0, -1);
+                console.log(`尝试修复URL: ${currentPath} -> ${fixedPath}`);
+                window.history.replaceState({}, '', fixedPath);
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // 执行自动修复
+        setTimeout(() => {
+            if (attemptAutoFix()) {
+                console.log('URL已自动修复，请检查是否正确');
+            }
+        }, 500);
+    </script>
 </body>
 </html>

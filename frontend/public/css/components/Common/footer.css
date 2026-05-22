@@ -1,0 +1,851 @@
+/**
+ * 页脚组件样式
+ * 为笔记应用提供底部导航、版权信息、状态显示和实用链接
+ */
+
+/* 页脚容器 */
+.app-footer {
+    position: relative;
+    width: 100%;
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+/* 页脚固定定位 */
+.app-footer.fixed {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+/* 页脚绝对定位 */
+.app-footer.absolute {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+/* 页脚相对定位 */
+.app-footer.relative {
+    position: relative;
+}
+
+/* 页脚粘性定位 */
+.app-footer.sticky {
+    position: sticky;
+    bottom: 0;
+}
+
+/* 页脚隐藏 */
+.app-footer.hidden {
+    display: none;
+}
+
+/* 页脚紧凑模式 */
+.app-footer.compact {
+    padding: 0.5rem 0;
+}
+
+.app-footer.compact .footer-content {
+    padding: 0 1rem;
+}
+
+.app-footer.compact .footer-section {
+    margin-bottom: 0.25rem;
+}
+
+.app-footer.compact .footer-links {
+    gap: 1rem;
+}
+
+.app-footer.compact .footer-link {
+    font-size: 0.75rem;
+}
+
+/* 页脚内容 */
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* 页脚行布局 */
+.footer-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* 页脚列布局 */
+.footer-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+/* 页脚部分 */
+.footer-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.footer-section.primary {
+    flex: 1;
+    min-width: 300px;
+}
+
+.footer-section.secondary {
+    min-width: 200px;
+}
+
+.footer-section.tertiary {
+    min-width: 150px;
+}
+
+/* 页脚标题 */
+.footer-title {
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.footer-title i {
+    font-size: 1rem;
+    color: var(--primary-color);
+}
+
+/* 页脚信息 */
+.footer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* 应用信息 */
+.app-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.app-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.app-logo:hover {
+    color: var(--primary-color);
+}
+
+.app-logo i {
+    font-size: 1.25rem;
+    color: var(--primary-color);
+}
+
+.app-name {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.app-version {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    background-color: var(--bg-tertiary);
+    padding: 0.125rem 0.5rem;
+    border-radius: 12px;
+}
+
+.app-description {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    max-width: 400px;
+}
+
+/* 版权信息 */
+.copyright {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.copyright i {
+    font-size: 0.875rem;
+}
+
+/* 页脚链接 */
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.footer-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0;
+    position: relative;
+}
+
+.footer-link:hover {
+    color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.footer-link.active {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.footer-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--primary-color);
+    border-radius: 1px;
+}
+
+.footer-link i {
+    font-size: 0.875rem;
+    width: 1.25rem;
+    text-align: center;
+}
+
+/* 外部链接 */
+.footer-link.external::after {
+    content: '↗';
+    font-size: 0.75rem;
+    margin-left: 0.25rem;
+    opacity: 0.7;
+}
+
+/* 禁用链接 */
+.footer-link.disabled {
+    color: var(--text-disabled);
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* 页脚按钮 */
+.footer-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.footer-button {
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+.footer-button:hover {
+    background-color: var(--bg-hover);
+    transform: translateY(-1px);
+}
+
+.footer-button.primary {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.footer-button.primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+.footer-button.secondary {
+    background-color: transparent;
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+.footer-button.secondary:hover {
+    background-color: var(--bg-hover);
+    border-color: var(--border-hover);
+}
+
+.footer-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 页脚徽章 */
+.footer-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.footer-badge {
+    font-size: 0.6875rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.footer-badge i {
+    font-size: 0.75rem;
+}
+
+.footer-badge.primary {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.footer-badge.success {
+    background-color: var(--success-light);
+    color: var(--success-color);
+}
+
+.footer-badge.warning {
+    background-color: var(--warning-light);
+    color: var(--warning-color);
+}
+
+.footer-badge.danger {
+    background-color: var(--danger-light);
+    color: var(--danger-color);
+}
+
+.footer-badge.info {
+    background-color: var(--info-light);
+    color: var(--info-color);
+}
+
+/* 页脚社交链接 */
+.footer-social {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.social-link:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.social-link.github:hover {
+    background-color: #333;
+    box-shadow: 0 4px 12px rgba(51, 51, 51, 0.2);
+}
+
+.social-link.twitter:hover {
+    background-color: #1da1f2;
+    box-shadow: 0 4px 12px rgba(29, 161, 242, 0.2);
+}
+
+.social-link.discord:hover {
+    background-color: #5865f2;
+    box-shadow: 0 4px 12px rgba(88, 101, 242, 0.2);
+}
+
+/* 页脚分隔线 */
+.footer-divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 0.5rem 0;
+    opacity: 0.5;
+}
+
+/* 页脚状态 */
+.footer-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-indicator.online {
+    background-color: var(--success-color);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.offline {
+    background-color: var(--danger-color);
+}
+
+.status-indicator.syncing {
+    background-color: var(--warning-color);
+    animation: pulse 1s infinite;
+}
+
+.status-indicator.disconnected {
+    background-color: var(--text-tertiary);
+}
+
+.status-text {
+    color: var(--text-secondary);
+}
+
+/* 页脚工具提示 */
+.footer-tooltip {
+    position: relative;
+    display: inline-flex;
+}
+
+.footer-tooltip .tooltip-text {
+    visibility: hidden;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+}
+
+.footer-tooltip .tooltip-text::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: var(--bg-primary) transparent transparent transparent;
+}
+
+.footer-tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* 页脚通知 */
+.footer-notification {
+    position: absolute;
+    top: -2.5rem;
+    left: 0;
+    right: 0;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    animation: slideDown 0.3s ease;
+    z-index: 101;
+}
+
+.footer-notification.hidden {
+    animation: slideUp 0.3s ease forwards;
+}
+
+.footer-notification.warning {
+    background-color: var(--warning-color);
+}
+
+.footer-notification.error {
+    background-color: var(--danger-color);
+}
+
+.footer-notification.success {
+    background-color: var(--success-color);
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: white;
+    opacity: 0.7;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+}
+
+.notification-close:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 页脚面包屑 */
+.footer-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    flex-wrap: wrap;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.breadcrumb-item:not(:last-child)::after {
+    content: '/';
+    opacity: 0.5;
+}
+
+.breadcrumb-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.breadcrumb-link:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumb-link.active {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* 页脚搜索 */
+.footer-search {
+    position: relative;
+    max-width: 300px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.5rem 2.5rem 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.search-button {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.search-button:hover {
+    color: var(--primary-color);
+}
+
+/* 页脚折叠 */
+.footer-collapsible {
+    width: 100%;
+}
+
+.collapsible-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    cursor: pointer;
+    user-select: none;
+}
+
+.collapsible-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.collapsible-content.expanded {
+    max-height: 500px;
+    padding-top: 0.5rem;
+}
+
+.collapsible-toggle {
+    transition: transform 0.3s ease;
+}
+
+.collapsible-toggle.expanded {
+    transform: rotate(180deg);
+}
+
+/* 动画 */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+/* 深色主题适配 */
+.dark .app-footer {
+    background-color: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .footer-button {
+    background-color: rgba(30, 41, 59, 0.8);
+}
+
+.dark .footer-button:hover {
+    background-color: rgba(30, 41, 59, 1);
+}
+
+.dark .social-link {
+    background-color: rgba(30, 41, 59, 0.8);
+}
+
+/* 浅色主题适配 */
+.light .app-footer {
+    background-color: rgba(248, 250, 252, 0.9);
+    backdrop-filter: blur(10px);
+    border-top-color: rgba(0, 0, 0, 0.1);
+}
+
+.light .footer-button {
+    background-color: rgba(241, 245, 249, 0.8);
+}
+
+.light .footer-button:hover {
+    background-color: rgba(241, 245, 249, 1);
+}
+
+.light .social-link {
+    background-color: rgba(241, 245, 249, 0.8);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .footer-content {
+        padding: 1rem;
+    }
+    
+    .footer-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .footer-columns {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .footer-section.primary {
+        min-width: 100%;
+    }
+    
+    .footer-links {
+        gap: 1rem;
+    }
+    
+    .footer-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .footer-search {
+        max-width: 100%;
+    }
+    
+    .app-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-content {
+        padding: 0.75rem;
+    }
+    
+    .footer-links {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .footer-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .footer-badges {
+        justify-content: flex-start;
+    }
+    
+    .footer-social {
+        justify-content: flex-start;
+    }
+}
+
+/* 打印样式 */
+@media print {
+    .app-footer {
+        display: none;
+    }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+    .app-footer {
+        border-top: 2px solid var(--border-color);
+    }
+    
+    .footer-link {
+        text-decoration: underline;
+    }
+    
+    .footer-button {
+        border: 2px solid currentColor;
+    }
+}
+
+/* 减少动画 */
+@media (prefers-reduced-motion: reduce) {
+    .app-footer,
+    .footer-link,
+    .footer-button,
+    .social-link,
+    .footer-notification,
+    .collapsible-content {
+        transition: none;
+    }
+    
+    .footer-link:hover,
+    .footer-button:hover {
+        transform: none;
+    }
+    
+    .status-indicator.online,
+    .status-indicator.syncing {
+        animation: none;
+    }
+    
+    .footer-notification {
+        animation: none;
+    }
+}
